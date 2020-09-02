@@ -102,16 +102,4 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		return;
 	}
-	
-	public function beforeCompile(): void
-	{
-		$builder = $this->getContainerBuilder();
-		/** @var \Nette\DI\Definitions\ServiceDefinition $router */
-		$router = $builder->getDefinition('routing.router');
-		$routerClass = $router->getFactory()->getEntity();
-	
-		if (!\is_a($routerClass, \Nette\Application\Routers\RouteList::class, true)) {
-			throw new \Nette\DI\InvalidConfigurationException("Router supposed to be instance of RouteList '$routerClass' given");
-		}
-	}
 }

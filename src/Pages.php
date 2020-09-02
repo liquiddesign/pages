@@ -39,7 +39,7 @@ class Pages
 	
 	private \Nette\Application\IPresenterFactory $presenterFactory;
 	
-	private ?\Pages\DB\IPage $page;
+	private ?\Pages\DB\IPage $page = null;
 	
 	private ?\StORM\DIConnection $connection;
 	
