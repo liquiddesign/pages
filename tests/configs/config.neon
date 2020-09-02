@@ -1,0 +1,34 @@
+parameters:
+	langs:
+		'cz': ''
+		'en': '_en'
+
+services:
+	- Tracy\Debugger::getBar
+	application.application: Nette\Application\Application
+	routing.router: Nette\Application\Routers\RouteList
+	- Nette\Application\PresenterFactory
+	- Nette\Caching\Storages\DevNullStorage
+	- Nette\Http\Request
+	- Nette\Http\Response
+	- Nette\Http\UrlScript
+
+pages:
+	types:
+		test:
+			name: test
+			plink: test:list
+			defaultMask: 'test-default-mask'
+
+storm:
+	debug: true
+	connections:
+		default:
+			host: 127.0.0.1
+			dbname: _test_pages
+			user: root
+			mutations: %langs%
+			password: ""
+			driver: mysql
+			charset: utf8
+			collate: utf8_czech_ci

@@ -1,0 +1,62 @@
+<?php
+
+use Tracy\Dumper;
+
+$page = $this->pages->getPage() ?>
+<div class="pagesPanel">
+    <div class="nette-inner">
+        <div class="tracy-inner-container" style="min-width: 100%">
+            <h1>Current page:</h1>
+            <?php if ($page) { ?>
+            <strong>ID:</strong> <?=$page->getID()?> <br>
+            <strong>Type:</strong> <?=$page->getType()?> <br>
+            <?php if ($this->pages->getMutations()) { ?>
+            <?php foreach ($this->pages->getMutations() as $mutation) { ?>
+            <strong>Url</strong> (<?=$mutation?>): <?=$page->getUrl($mutation)?> <br>
+			<?php } ?>
+			<?php } else { ?>
+            <strong>Url:</strong> <?=$page->getUrl(null)?> <br>
+			<?php } ?>
+            <strong>Parameters:</strong> <?=$page->getParameters(false)?> <br>
+			<?php } else {?>
+            - not found - <br>
+            <?php } ?>
+            <br>
+            <h1>Page types:</h1>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>#</th>
+                    <th>Plink</th>
+                    <th>Required params</th>
+                    <th>Optional params</th>
+                    <th>Default mask</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($this->pages->getPageTypes() as $type) { ?>
+                <tr style="border-width: 0px 0 0px 0px">
+                    <td><?=$type->getID()?></td>
+                    <td><?=$type->getName()?></td>
+                    <td><?=$this->pageRepo->many()->where('type', $type->getID())->enum();?>x</td>
+                    <td><?=$type->getPlink()?></td>
+                    <td>
+                        <?php foreach ($type->getRequiredParameters() as $param => $ptype) { ?>
+                            <?=$ptype?>&nbsp;<span style="color: darkred">$<?=$param?></span><br>
+						<?php } ?>
+                    </td>
+                    <td>
+						<?php foreach ($type->getOptionalParameters() as $param => $ptype) { ?>
+							<?=$ptype?>&nbsp;<span style="color: dodgerblue">$<?=$param?></span><br>
+						<?php } ?>
+                    </td>
+                    <td><?=\htmlentities($type->getDefaultMask())?></td>
+                </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

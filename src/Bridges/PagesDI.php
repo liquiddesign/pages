@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Pages\Bridges;
+
+use Nette\Application\Helpers;
+use Nette\Routing\Route;
+use Nette\Schema\Expect;
+use Nette\Schema\Schema;
+use Pages\DB\PageRepository;
+use Pages\DB\RedirectRepository;
+use Pages\DB\SitemapRepository;
+use Pages\Redirector;
+use Pages\Router;
+use StORM\Entity;
+
+class PagesDI extends \Nette\DI\CompilerExtension
+{
+	public function getConfigSchema(): Schema
+	{
+		return Expect::structure([
+			'types' => Expect::arrayOf(Expect::structure([
+				'name' => Expect::string()->required(true),
+				'plink' => Expect::string()->required(true),
+				'defaultMask' => Expect::string(),
+				'templateVars' => Expect::arrayOf('string'),
+			]))->required(),
+			'defaultRoutes' => Expect::bool(true),
+			'defaultMutation' => Expect::string(null)->min(2)->max(2),
+			'mutations' => Expect::arrayOf('string|array'),
+			'filterIn' => Expect::array(null),
+			'filterOut' => Expect::array(null),
+			'redirects' => Expect::bool(true),
+			'mapping' => Expect::structure([
+				'methods' => Expect::array(),
+				'class' => Expect::string(Entity::class),
+				'throw404' => Expect::bool(false),
+			]),
+		]);
+	}
+	
+	public function loadConfiguration(): void
+	{
+		$config = (array) $this->getConfig();
+		
+		$defaultMutation = $config['defaultMutation'] ?: ($config['mutations'] ? \reset($config['mutations']) : null);
+		$mutations = $config['mutations'];
+		
+		$config['mapping'] = (array) $config['mapping'];
+		
+		/** @var \Nette\DI\ContainerBuilder $builder */
+		$builder = $this->getContainerBuilder();
+		
+		$pages = $builder->addDefinition($this->prefix('pages'))->setType(\Pages\Pages::class);
+		$pages->addSetup('setMutations', [$mutations]);
+		$pages->addSetup('setDefaultMutation', [$defaultMutation]);
+		$pages->addSetup('setMapping', [$config['mapping']['methods'], $config['mapping']['class'], $config['mapping']['throw404']]);
+		$pages->addSetup('setFilterIn', [$config['filterIn']]);
+		$pages->addSetup('setFilterOut', [$config['filterOut']]);
+		$pages->addSetup('@Tracy\Bar::addPanel', [
+			new \Nette\DI\Definitions\Statement(PagesTracy::class),
+		]);
+		
+		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setAutowired(false);
+		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
+		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
+		$builder->addDefinition($this->prefix('sitemapRepository'))->setType(SitemapRepository::class);
+		
+		if ($config['redirects'] && $builder->hasDefinition('application.application')) {
+			$redirector = $builder->addDefinition($this->prefix('redirector'))->setType(Redirector::class);
+			/** @var \Nette\DI\Definitions\ServiceDefinition $application */
+			$application = $builder->getDefinition('application.application');
+			$application->addSetup('$onStartup[]', [[$redirector, 'handleRedirect']]);
+		}
+		
+		/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
+		$routerListDef = $builder->getDefinition('routing.router');
+		$routerListDef->addSetup('add', [$def]);
+		
+		$langMask = '';
+		
+		if ($defaultMutation && $mutations) {
+			$langString = \implode('|', $mutations);
+			$langMask = "[<lang=$defaultMutation $langString>/]";
+		}
+		
+		foreach ($config['types'] as $id => $pageType) {
+			$pageType = (array) $pageType;
+			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null]);
+			
+			if (!$config['defaultRoutes'] || !isset($pageType['defaultMask'])) {
+				continue;
+			}
+			
+			[$presenter, $action] = Helpers::splitName($pageType['plink']);
+			$routerListDef->addSetup('addRoute', [$langMask . $pageType['defaultMask'], ['presenter' => $presenter, 'action' => $action, null => [
+				Route::FILTER_OUT => [$pages, 'unmapParameters'],
+				Route::FILTER_IN => [$pages, 'mapParameters'],
+			]]]);
+		}
+		
+		return;
+	}
+	
+	public function beforeCompile(): void
+	{
+		$builder = $this->getContainerBuilder();
+		/** @var \Nette\DI\Definitions\ServiceDefinition $router */
+		$router = $builder->getDefinition('routing.router');
+		$routerClass = $router->getFactory()->getEntity();
+	
+		if (!\is_a($routerClass, \Nette\Application\Routers\RouteList::class, true)) {
+			throw new \Nette\DI\InvalidConfigurationException("Router supposed to be instance of RouteList '$routerClass' given");
+		}
+	}
+}
