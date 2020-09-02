@@ -1,5 +1,5 @@
 {
-	"name": "lqdvendor/pages-2gen",
+	"name": "liquiddesign/pages",
 	"description": "℗ Nette extension obsahující databázový router, přesměrování (na StORMu) a přidružené funkce.",
 	"license": "MIT",
 	"autoload": {
