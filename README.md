@@ -1,4 +1,4 @@
-#℗ Pages
+# ℗ Pages
 Nette extension obsahující databázový router,přesměrování (na StORMu) a přidružené funkce
 
 ![Travis](https://travis-ci.org/liquiddesign/pages.svg?branch=master)
