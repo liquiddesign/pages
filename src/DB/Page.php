@@ -14,9 +14,9 @@ class Page extends \StORM\Entity implements IPage
 {
 	/**
 	 * Page url
-	 * @column{"type":"varchar","unique":true,"locale":true,"nullable":true}
+	 * @column{"type":"varchar","unique":true,"mutations":true,"nullable":true}
 	 */
-	public string $url;
+	public ?string $url = null;
 	
 	/**
 	 * Page type
@@ -37,25 +37,25 @@ class Page extends \StORM\Entity implements IPage
 	
 	/**
 	 * Title
-	 * @column{"locale":true}
+	 * @column{"mutations":true}
 	 */
-	public string $title;
+	public ?string $title = null;
 	
 	/**
 	 * Description
-	 * @column{"locale":true}
+	 * @column{"mutations":true}
 	 */
-	public string $description;
+	public ?string $description = null;
 	
 	/**
 	 * Robots
-	 * @column{"locale":true}
+	 * @column
 	 */
 	public ?string $robots = null;
 	
 	/**
 	 * Rel canonical
-	 * @column
+	 * @column{"mutations":true}
 	 */
 	public ?string $canonicalUrl = null;
 	
