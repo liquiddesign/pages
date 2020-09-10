@@ -27,7 +27,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$pages = $this->many()->where($lang ? "url$suffix" : 'url', $url);
 		
 		if ($notIncludePagePK !== null) {
-			$pages->whereNot('pages_page.uuid', $notIncludePagePK);
+			$pages->whereNot('this.uuid', $notIncludePagePK);
 		}
 		
 		return $pages->isEmpty();
@@ -77,7 +77,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		$pages = $this->many()
 			->where('type', $page->type)
-			->whereNot('pages_page.uuid', $page->getPK())
+			->whereNot('this.uuid', $page->getPK())
 			->where(":params LIKE CONCAT(params,'%')", ['params' => $page->params])
 			->orderBy(['LENGTH(params)' => 'DESC']);
 		
@@ -95,7 +95,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		$pages = $this->many()
 			->where('type', $page->type)
-			->whereNot('pages_page.uuid', $page->getPK())
+			->whereNot('this.uuid', $page->getPK())
 			->where("params LIKE :params", ['params' => $page->params . '%'])
 			->orderBy(['LENGTH(params)' => 'DESC']);
 		
@@ -125,7 +125,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 			}
 		}
 		
-		return $found ? $this->many()->where('pages_page.uuid', $found) : $this->many()->where('1=0');
+		return $found ? $this->many()->where('this.uuid', $found) : $this->many()->where('1=0');
 	}
 	
 	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery): ?IPage
