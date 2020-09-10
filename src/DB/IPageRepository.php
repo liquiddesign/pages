@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Pages\DB;
 
 use Pages\PageType;
+use StORM\DIConnection;
 
 interface IPageRepository
 {
+	public function getConnection(): DIConnection;
+	
 	public function getPageByUrl(string $url, ?string $lang): ?IPage;
 	
 	/**

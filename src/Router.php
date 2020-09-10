@@ -58,6 +58,11 @@ class Router implements \Nette\Routing\Router
 			$pageUrl = (string)\substr($pageUrl, \strlen($lang) + 1);
 		}
 		
+		// sets mutation
+		if (isset($this->pageRepository->getConnection()->getAvailableMutations()[$lang])) {
+			$this->pageRepository->getConnection()->setMutation($lang);
+		}
+		
 		// try get by url
 		$page = $this->pageRepository->getPageByUrl($pageUrl, $lang);
 		
