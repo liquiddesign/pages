@@ -61,7 +61,7 @@ class Router implements \Nette\Routing\Router
 		// try get by url
 		$page = $this->pageRepository->getPageByUrl($pageUrl, $lang);
 		
-		if ($page === null) {
+		if ($page === null || !$page->isAvailable($lang)) {
 			return null;
 		}
 		

@@ -8,6 +8,8 @@ interface IPage
 {
 	public function getID(): string;
 	
+	public function isAvailable(?string $lang): bool;
+	
 	public function getParameters(): string;
 	
 	/**

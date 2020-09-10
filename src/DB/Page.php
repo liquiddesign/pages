@@ -75,6 +75,11 @@ class Page extends \StORM\Entity implements IPage
 		return $this->getPK();
 	}
 	
+	public function isAvailable(?string $lang): bool
+	{
+		return !$this->isOffline && $this->getValue('url', $lang) !== null;
+	}
+	
 	public function getType(): string
 	{
 		return $this->type;
