@@ -17,6 +17,16 @@ class Router implements \Nette\Routing\Router
 	
 	private \Pages\DB\IPageRepository $pageRepository;
 	
+	/**
+	 * @var \Pages\DB\IPage[]|null[]
+	 */
+	private array $outCache = [];
+	
+	/**
+	 * @var \Pages\DB\IPage[]|null[]
+	 */
+	private array $inCache = [];
+	
 	public function __construct(Pages $pages, IPageRepository $pageRepository)
 	{
 		$this->pages = $pages;
@@ -64,7 +74,9 @@ class Router implements \Nette\Routing\Router
 		}
 		
 		// try get by url
-		$page = $this->pageRepository->getPageByUrl($pageUrl, $lang);
+		$cacheIndex = $lang . $pageUrl;
+		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang);
+		$this->inCache[$cacheIndex] = $page;
 		
 		if ($page === null || !$page->isAvailable($lang)) {
 			return null;
@@ -82,9 +94,9 @@ class Router implements \Nette\Routing\Router
 		[$presenter, $action] = Helpers::splitName($pageType->getPlink());
 		
 		$parameters = [
-			Presenter::PRESENTER_KEY => $presenter,
-			Presenter::ACTION_KEY => $action,
-		] + $urlParams + $page->getParsedParameters();
+				Presenter::PRESENTER_KEY => $presenter,
+				Presenter::ACTION_KEY => $action,
+			] + $urlParams + $page->getParsedParameters();
 		
 		$parameters = $this->pages->mapParameters($parameters);
 		
@@ -117,7 +129,9 @@ class Router implements \Nette\Routing\Router
 		
 		unset($params[Presenter::PRESENTER_KEY], $params[Presenter::ACTION_KEY], $params[self::LANGUAGE_KEY]);
 		
-		$page = $this->pageRepository->getPageByTypeAndParams($pageType, $lang, $params);
+		$cacheIndex = $pageType->getID() . $lang . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
+		$page = $this->outCache[$cacheIndex] ?? $this->pageRepository->getPageByTypeAndParams($pageType, $lang, $params);
+		$this->outCache[$cacheIndex] = $page;
 		
 		if (!$page) {
 			return null;

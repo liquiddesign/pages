@@ -26,6 +26,11 @@ class PageType
 	 */
 	private ?array $optionalParameters = null;
 	
+	/**
+	 * @var mixed[]|null
+	 */
+	private ?array $parameters = null;
+	
 	private \Nette\Application\IPresenterFactory $presenterFactory;
 	
 	private ?string $defaultMask;
@@ -114,6 +119,14 @@ class PageType
 	 */
 	public function getParameters(?array $fillParams = null): array
 	{
+		if ($fillParams === null) {
+			if ($this->parameters !== null) {
+				return $this->parameters;
+			}
+			
+			return $this->parameters = $this->getRequiredParameters() + $this->getOptionalParameters();
+		}
+		
 		return $this->getRequiredParameters($fillParams) + $this->getOptionalParameters($fillParams);
 	}
 	
