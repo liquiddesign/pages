@@ -210,7 +210,12 @@ class Pages
 			$repository = $this->connection->findRepository($class);
 			
 			try {
-				$params[$name] = $this->callMapMethod(\strtolower($module), $repository, (string)$params[$name]);
+				// test if params is actually page itself
+				if ($this->page && \get_class($this->page) === $class && $params[$name] === $this->page->getID()) {
+					$params[$name] = $this->page;
+				} else {
+					$params[$name] = $this->callMapMethod(\strtolower($module), $repository, (string)$params[$name]);
+				}
 			} catch (NotFoundException $exception) {
 				if ($this->mappingThrow404) {
 					throw new BadRequestException("Entity '$class' ID '$params[$name]' not found");
