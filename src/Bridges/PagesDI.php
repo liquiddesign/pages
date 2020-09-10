@@ -33,7 +33,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			'filterOut' => Expect::array(null),
 			'redirects' => Expect::bool(true),
 			'mapping' => Expect::structure([
-				'methods' => Expect::array(),
+				'methods' => Expect::array(['*' => ['one', ['?', true]]]),
 				'class' => Expect::string(Entity::class),
 				'throw404' => Expect::bool(false),
 			]),
