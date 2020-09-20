@@ -20,7 +20,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$suffix = '';
 		
 		if ($lang) {
-			$suffix = $this->getConnection()->getAvailableMutations()[$lang];
+			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
 		}
 		
 		/** @var \StORM\Collection $pages */
@@ -38,7 +38,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$suffix = '';
 		
 		if ($lang) {
-			$suffix = $this->getConnection()->getAvailableMutations()[$lang];
+			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
 		}
 		
 		/** @var \Pages\DB\Page $page */
@@ -133,7 +133,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$pages = $this->many()->where('type', $type)->where('isOffline', false);
 		
 		if ($lang) {
-			$suffix = $this->getConnection()->getAvailableMutations()[$lang];
+			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
 			$pages->where("url$suffix IS NOT NULL");
 		}
 		
