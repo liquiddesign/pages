@@ -74,8 +74,14 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			$application->addSetup('$onStartup[]', [[$redirector, 'handleRedirect']]);
 		}
 		
-		/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
-		$routerListDef = $builder->getDefinition('routing.router');
+		if ($builder->hasDefinition('routing.router')) {
+			/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
+			$routerListDef = $builder->getDefinition('routing.router');
+		} else {
+			/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
+			$routerListDef = $builder->addDefinition('routing.router')->setType(\Nette\Application\Routers\RouteList::class);
+		}
+		
 		$routerListDef->addSetup('add', [$def]);
 		
 		$langMask = '';
