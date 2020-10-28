@@ -129,11 +129,15 @@ class Router implements \Nette\Routing\Router
 		
 		unset($params[Presenter::PRESENTER_KEY], $params[Presenter::ACTION_KEY], $params[self::LANGUAGE_KEY]);
 		
-		$cacheIndex = $pageType->getID() . $lang . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
-		$page = $this->outCache[$cacheIndex] ?? $this->pageRepository->getPageByTypeAndParams($pageType, $lang, $params);
-		$this->outCache[$cacheIndex] = $page;
+		$cacheIndex = $pageType->getID() . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
 		
-		if (!$page) {
+		if (!\array_key_exists($cacheIndex, $this->outCache)) {
+			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType, $lang, $params);
+		}
+		
+		$page = $this->outCache[$cacheIndex];
+		
+		if (!$page || !$page->isAvailable($lang)) {
 			return null;
 		}
 		
