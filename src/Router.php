@@ -69,9 +69,9 @@ class Router implements \Nette\Routing\Router
 		}
 		
 		// sets mutation
-		if (isset($this->pageRepository->getConnection()->getAvailableMutations()[$lang])) {
+		/*if (isset($this->pageRepository->getConnection()->getAvailableMutations()[$lang])) {
 			$this->pageRepository->getConnection()->setMutation($lang);
-		}
+		}*/
 		
 		// try get by url
 		$cacheIndex = $lang . $pageUrl;

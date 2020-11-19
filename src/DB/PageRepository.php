@@ -42,7 +42,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		/** @var \Pages\DB\Page $page */
-		$page = $this->many()->where('isOffline', false)->where($lang ? "url$suffix" : 'url', $url)->setTake(1)->first();
+		$page = $this->many($lang)->where('isOffline', false)->where($lang ? "url$suffix" : 'url', $url)->setTake(1)->first();
 		
 		return $page;
 	}
@@ -130,7 +130,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	
 	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery): ?IPage
 	{
-		$pages = $this->many()->where('type', $type)->where('isOffline', false);
+		$pages = $this->many($lang)->where('type', $type)->where('isOffline', false);
 		
 		if ($lang) {
 			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
