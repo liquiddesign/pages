@@ -44,12 +44,12 @@ $page = $this->pages->getPage() ?>
                     <td><?=$type->getPlink()?></td>
                     <td>
                         <?php foreach ($type->getRequiredParameters() as $param => $ptype) { ?>
-                            <?=$ptype?>&nbsp;<span style="color: darkred">$<?=$param?></span><br>
+                            <?=$ptype->getName()?>&nbsp;<span style="color: darkred">$<?=$param?></span><br>
 						<?php } ?>
                     </td>
                     <td>
 						<?php foreach ($type->getOptionalParameters() as $param => $ptype) { ?>
-							<?=$ptype?>&nbsp;<span style="color: dodgerblue">$<?=$param?></span><br>
+							<?=$ptype->getName()?>&nbsp;<span style="color: dodgerblue">$<?=$param?></span><br>
 						<?php } ?>
                     </td>
                     <td><?=\htmlentities($type->getDefaultMask())?></td>
