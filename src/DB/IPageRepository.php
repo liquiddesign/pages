@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pages\DB;
 
-use Pages\PageType;
 use StORM\DIConnection;
 
 interface IPageRepository
@@ -14,11 +13,11 @@ interface IPageRepository
 	public function getPageByUrl(string $url, ?string $lang): ?IPage;
 	
 	/**
-	 * @param \Pages\PageType $pageType
+	 * @param string $pageTypeId
 	 * @param string|null $lang
 	 * @param mixed[] $parameters
 	 */
-	public function getPageByTypeAndParams(PageType $pageType, ?string $lang, array $parameters = []): ?IPage;
+	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = []): ?IPage;
 	
 	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null): bool;
 }

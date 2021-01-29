@@ -58,9 +58,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$pages->addSetup('setMapping', [$config['mapping']['methods'], $config['mapping']['class'], $config['mapping']['throw404']]);
 		$pages->addSetup('setFilterIn', [$config['filterIn']]);
 		$pages->addSetup('setFilterOut', [$config['filterOut']]);
-		$pages->addSetup('@Tracy\Bar::addPanel', [
-			new \Nette\DI\Definitions\Statement(PagesTracy::class),
-		]);
+		
 		
 		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setAutowired(false);
 		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
@@ -107,5 +105,14 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		}
 		
 		return;
+	}
+	
+	public function beforeCompile()
+	{
+		$builder = $this->getContainerBuilder();
+		
+		$builder->getDefinition($this->prefix('pageRepository'))->addSetup('@Tracy\Bar::addPanel', [
+			new \Nette\DI\Definitions\Statement(PagesTracy::class),
+		]);
 	}
 }

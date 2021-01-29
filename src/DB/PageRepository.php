@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Pages\DB;
 
 use Pages\Helpers;
+use Pages\Pages;
 use Pages\PageType;
 use StORM\Collection;
+use StORM\DIConnection;
 use StORM\Entity;
+use StORM\SchemaManager;
 
 /**
  * Class PageRepository
@@ -15,6 +18,15 @@ use StORM\Entity;
  */
 class PageRepository extends \StORM\Repository implements IPageRepository
 {
+	protected Pages $pages;
+	
+	public function __construct(DIConnection $connection, SchemaManager $schemaManager, Pages $pages)
+	{
+		parent::__construct($connection, $schemaManager);
+		
+		$this->pages = $pages;
+	}
+	
 	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null): bool
 	{
 		$suffix = '';
@@ -48,12 +60,14 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	}
 	
 	/**
-	 * @param \Pages\PageType $pageType
+	 * @param string $pageTypeId
 	 * @param string|null $lang
 	 * @param mixed[] $parameters
 	 */
-	public function getPageByTypeAndParams(PageType $pageType, ?string $lang, array $parameters = []): ?IPage
+	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = []): ?IPage
 	{
+		$pageType = $this->pages->getPageType($pageTypeId);
+		
 		$type = $pageType->getID();
 		$requiredParameters = $pageType->getRequiredParameters($parameters);
 		$optionalParameters = $pageType->getOptionalParameters($parameters);
@@ -106,8 +120,9 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		return $pages;
 	}
 	
-	public function get404Pages(PageType $pageType): Collection
+	public function get404Pages(string $pageTypeId): Collection
 	{
+		$pageType = $this->pages->getPageType($pageTypeId);
 		$found = [];
 		
 		foreach ($pageType->getParameters() as $name => $paramType) {
