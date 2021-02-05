@@ -55,10 +55,10 @@ class Redirector
 	
 	private function generateRedirectUrl(Redirect $redirect, \Nette\Http\IRequest $request, ?string $defaultMutation): string
 	{
-		$toMutation = $redirect->toMutation;
+		$toMutation = $redirect->toMutation ?: $redirect->fromMutation;
 		$toUrl = $redirect->toUrl;
 		$url = $request->getUrl();
-		$path = $url->getBasePath() . ($toMutation !== $defaultMutation ? ($toUrl ? "$toMutation/" : $toMutation) : '') . $toUrl;
+		$path = $url->getBasePath() . ($toMutation !== null && $toMutation !== $defaultMutation ? ($toUrl ? "$toMutation/" : $toMutation) : '') . $toUrl;
 		
 		$redirectUrl = new \Nette\Http\Url();
 		$redirectUrl->setScheme($url->getScheme());

@@ -27,7 +27,7 @@ class Redirect extends \StORM\Entity
 	/**
 	 * @column
 	 */
-	public string $toMutation;
+	public ?string $toMutation;
 	
 	/**
 	 * @column
@@ -37,5 +37,5 @@ class Redirect extends \StORM\Entity
 	/**
 	 * @column{"type":"timestamp","default":"CURRENT_TIMESTAMP"}
 	 */
-	public int $createdTs;
+	public string $createdTs;
 }
