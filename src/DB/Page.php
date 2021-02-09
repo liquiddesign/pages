@@ -9,6 +9,7 @@ use Pages\Pages;
 
 /**
  * @table
+ * @index{"name":"type_params","unique":true,"columns":["type","params"]}
  */
 class Page extends \StORM\Entity implements IPage
 {

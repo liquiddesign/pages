@@ -63,7 +63,6 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setAutowired(false);
 		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
 		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
-		$builder->addDefinition($this->prefix('sitemapRepository'))->setType(SitemapRepository::class);
 		
 		if ($config['redirects'] && $builder->hasDefinition('application.application')) {
 			$redirector = $builder->addDefinition($this->prefix('redirector'))->setType(Redirector::class);
