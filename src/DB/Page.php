@@ -61,12 +61,6 @@ class Page extends \StORM\Entity implements IPage
 	public ?string $canonicalUrl = null;
 	
 	/**
-	 * @relation
-	 * @constraint
-	 */
-	public ?\Pages\DB\Sitemap $sitemap = null;
-	
-	/**
 	 * @var string[]
 	 */
 	private array $templateVars = [];
