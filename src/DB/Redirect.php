@@ -6,6 +6,7 @@ namespace Pages\DB;
 
 /**
  * @table
+ * @index{"name":"redirect_url","unique":true,"columns":["fromUrl","fromMutation"]}
  */
 class Redirect extends \StORM\Entity
 {
