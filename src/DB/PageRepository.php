@@ -45,7 +45,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		return $pages->isEmpty();
 	}
 	
-	public function getPageByUrl(string $url, ?string $lang): ?IPage
+	public function getPageByUrl(string $url, ?string $lang, bool $includeOffline = true): ?IPage
 	{
 		$suffix = '';
 		
@@ -53,8 +53,14 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
 		}
 		
-		/** @var \Pages\DB\Page $page */
-		$page = $this->many($lang)->where('isOffline', false)->where($lang ? "url$suffix" : 'url', $url)->setTake(1)->first();
+		$collection = $this->many($lang)->where($lang ? "url$suffix" : 'url', $url)->setTake(1);
+		
+		if (!$includeOffline) {
+			$collection->where('isOffline', false);
+		}
+		
+		/** @var \Pages\DB\Page|null $page */
+		$page = $collection->first();
 		
 		return $page;
 	}
@@ -64,7 +70,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param string|null $lang
 	 * @param mixed[] $parameters
 	 */
-	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = []): ?IPage
+	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true): ?IPage
 	{
 		$pageType = $this->pages->getPageType($pageTypeId);
 		
@@ -74,11 +80,11 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$page = null;
 		
 		if ($optionalParameters) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters));
+			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters), $includeOffline);
 		}
 		
 		if (!$page) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters));
+			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters), $includeOffline);
 		}
 		
 		return $page;
@@ -143,9 +149,13 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		return $found ? $this->many()->where('this.uuid', $found) : $this->many()->where('1=0');
 	}
 	
-	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery): ?IPage
+	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, bool $includeOffline = true): ?IPage
 	{
-		$pages = $this->many($lang)->where('type', $type)->where('isOffline', false);
+		$pages = $this->many($lang)->where('type', $type);
+		
+		if (!$includeOffline) {
+			$pages->where('isOffline', false);
+		}
 		
 		if ($lang) {
 			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';

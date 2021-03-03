@@ -70,7 +70,7 @@ class Router implements \Nette\Routing\Router
 		
 		// try get by url
 		$cacheIndex = $lang . $pageUrl;
-		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang);
+		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang, false);
 		$this->inCache[$cacheIndex] = $page;
 		
 		if ($page === null || !$page->isAvailable($lang)) {
@@ -127,7 +127,7 @@ class Router implements \Nette\Routing\Router
 		$cacheIndex = $pageType->getID() . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
 		
 		if (!\array_key_exists($cacheIndex, $this->outCache)) {
-			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params);
+			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false);
 		}
 		
 		$page = $this->outCache[$cacheIndex];
