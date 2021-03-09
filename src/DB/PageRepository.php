@@ -69,8 +69,11 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param string $pageTypeId
 	 * @param string|null $lang
 	 * @param mixed[] $parameters
+	 * @param bool $includeOffline
+	 * @param bool $perfectMatch
+	 * @return \Pages\DB\IPage|null
 	 */
-	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true): ?IPage
+	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage
 	{
 		$pageType = $this->pages->getPageType($pageTypeId);
 		
@@ -81,6 +84,10 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		if ($optionalParameters) {
 			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters), $includeOffline);
+			
+			if ($perfectMatch) {
+				return $page;
+			}
 		}
 		
 		if (!$page) {

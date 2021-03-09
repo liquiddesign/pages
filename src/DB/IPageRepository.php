@@ -17,9 +17,10 @@ interface IPageRepository
 	 * @param string|null $lang
 	 * @param mixed[] $parameters
 	 * @param bool $includeOffline
+	 * @param bool $perfectMatch
 	 * @return \Pages\DB\IPage|null
 	 */
-	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true): ?IPage;
+	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage;
 	
 	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null): bool;
 }
