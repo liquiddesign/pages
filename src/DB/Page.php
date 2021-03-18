@@ -32,7 +32,7 @@ class Page extends \StORM\Entity implements IPage
 	
 	/**
 	 * Parameters in name1=value1&name2=value2
-	 * @column{"length":512}
+	 * @column
 	 */
 	public string $params;
 	
