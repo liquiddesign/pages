@@ -171,4 +171,33 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		return \Nette\Utils\Helpers::falseToNull($pages->where('params', $httpQuery)->first());
 	}
+	
+	/**
+	 * Sitemaps format example:
+	 * [$pagetype1 => $param1, $pagetype2, $pagetype3 => $param3 ....]
+	 *
+	 * @param array $sitemaps
+	 * @return \StORM\Collection
+	 */
+	public function getPagesForSitemap(array $sitemaps): Collection
+	{
+		$where = [];
+		$vars = [];
+		$i = 0;
+		
+		foreach ($sitemaps as $key => $value) {
+			$type = \is_int($key) ? $value : $key;
+			$param = \is_int($key) ? null : $value;
+			$where[] = "type = :type_$i" . ($param !== null ? " AND params LIKE :param_$i" : '');
+			$vars["type_$i"] = $type;
+			
+			if ($param !== null) {
+				$vars["param_$i"] = "$param=%";
+			}
+			
+			$i++;
+		}
+		
+		return $this->many()->where('isOffline', false)->where(\implode(' OR ', $where), $vars);
+	}
 }
