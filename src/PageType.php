@@ -181,7 +181,7 @@ class PageType
 		$params = [];
 		
 		foreach ($names as $name) {
-			if (!isset($values[$name])) {
+			if (!\array_key_exists($name, $values)) {
 				continue;
 			}
 			
