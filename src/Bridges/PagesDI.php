@@ -32,6 +32,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			'filterIn' => Expect::array(null),
 			'filterOut' => Expect::array(null),
 			'redirects' => Expect::bool(true),
+			'mutationParameter' => Expect::string('lang'),
 			'mapping' => Expect::structure([
 				'methods' => Expect::array(['*' => ['one', ['?', true]]]),
 				'class' => Expect::string(Entity::class),
@@ -46,6 +47,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		$defaultMutation = $config['defaultMutation'] ?: ($config['mutations'] ? \reset($config['mutations']) : null);
 		$mutations = $config['mutations'];
+		$mutationParameter = $config['mutationParameter'];
 		
 		$config['mapping'] = (array) $config['mapping'];
 		
@@ -60,7 +62,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$pages->addSetup('setFilterOut', [$config['filterOut']]);
 		
 		
-		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setAutowired(false);
+		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setArgument('mutationParameter', $mutationParameter)->setAutowired(false);
 		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
 		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
 		
@@ -85,7 +87,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		if ($defaultMutation && $mutations) {
 			$langString = \implode('|', $mutations);
-			$langMask = "[<lang=$defaultMutation $langString>/]";
+			$langMask = "[<$mutationParameter=$defaultMutation $langString>/]";
 		}
 		
 		foreach ($config['types'] as $id => $pageType) {
