@@ -11,7 +11,7 @@ use Pages\DB\IPageRepository;
 
 class Router implements \Nette\Routing\Router
 {
-	private const LANGUAGE_KEY = 'lang';
+	private string $mutationParameter;
 	
 	private \Pages\Pages $pages;
 	
@@ -27,10 +27,11 @@ class Router implements \Nette\Routing\Router
 	 */
 	private array $inCache = [];
 	
-	public function __construct(Pages $pages, IPageRepository $pageRepository)
+	public function __construct(Pages $pages, IPageRepository $pageRepository, string $mutationParameter = 'lang')
 	{
 		$this->pages = $pages;
 		$this->pageRepository = $pageRepository;
+		$this->mutationParameter = $mutationParameter;
 	}
 	
 	/**
@@ -96,7 +97,7 @@ class Router implements \Nette\Routing\Router
 		$parameters = $this->pages->mapParameters($parameters);
 		
 		if ($lang) {
-			$parameters[self::LANGUAGE_KEY] = $lang;
+			$parameters[$this->mutationParameter] = $lang;
 		}
 		
 		return $parameters;
@@ -112,7 +113,7 @@ class Router implements \Nette\Routing\Router
 		$defaultLang = $this->pages->getDefaultMutation();
 		$plink = $params[Presenter::PRESENTER_KEY] . ':' . $params[Presenter::ACTION_KEY];
 		// if defaultLang not set ignore lang
-		$lang = $defaultLang ? ($params[self::LANGUAGE_KEY] ?? $defaultLang) : null;
+		$lang = $defaultLang ? ($params[$this->mutationParameter] ?? $defaultLang) : null;
 		
 		$pageType = $this->pages->getTypeByPlink($plink);
 		
@@ -122,7 +123,7 @@ class Router implements \Nette\Routing\Router
 		
 		$params = $this->pages->unmapParameters($params);
 		
-		unset($params[Presenter::PRESENTER_KEY], $params[Presenter::ACTION_KEY], $params[self::LANGUAGE_KEY]);
+		unset($params[Presenter::PRESENTER_KEY], $params[Presenter::ACTION_KEY], $params[$this->mutationParameter]);
 		
 		$cacheIndex = $pageType->getID() . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
 		
