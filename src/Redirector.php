@@ -46,7 +46,7 @@ class Redirector
 		if (!isset($this->redirectCache["$lang-$pageUrl"]) && $redirect = $this->redirectRepository->getRedirect($pageUrl, $lang)) {
 			// @phpstan-ignore-next-line
 			$application->onShutdown($application);
-			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation()));
+			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation()), 301);
 			exit;
 		}
 		
