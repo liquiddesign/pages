@@ -9,6 +9,7 @@ use Nette\Routing\Route;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use Pages\DB\PageRepository;
+use Pages\DB\PageTemplateRepository;
 use Pages\DB\RedirectRepository;
 use Pages\DB\SitemapRepository;
 use Pages\Redirector;
@@ -38,6 +39,10 @@ class PagesDI extends \Nette\DI\CompilerExtension
 				'class' => Expect::string(Entity::class),
 				'throw404' => Expect::bool(false),
 			]),
+			'templates' => Expect::structure([
+				'path' => Expect::array(),
+				'templates' => Expect::array(),
+			]),
 		]);
 	}
 	
@@ -61,11 +66,16 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$pages->addSetup('setFilterIn', [$config['filterIn']]);
 		$pages->addSetup('setFilterOut', [$config['filterOut']]);
 		
-		
 		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setArgument('mutationParameter', $mutationParameter)->setAutowired(false);
 		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
 		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
-		
+		$pageTemplateRepository = $builder->addDefinition($this->prefix('pageTemplateRepository'))->setType(PageTemplateRepository::class);
+
+		$pageTemplateRepository->addSetup('setImportTemplates', [
+			$config['templates']->templates,
+			$config['templates']->path,
+		]);
+
 		if ($config['redirects'] && $builder->hasDefinition('application.application')) {
 			$redirector = $builder->addDefinition($this->prefix('redirector'))->setType(Redirector::class);
 			/** @var \Nette\DI\Definitions\ServiceDefinition $application */

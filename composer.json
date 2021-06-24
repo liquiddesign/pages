@@ -11,6 +11,7 @@
 		"nette/application":"~3.0",
 		"nette/caching":"~3.0",
 		"nette/routing":"~3.0",
+		"latte/latte":"~2.0",
 		"nette/di":"~3.0",
 		"tracy/tracy":"*",
 		"liquiddesign/storm": "@dev",
@@ -28,6 +29,8 @@
 		"phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
 		"phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
 		"phpcsfix": "phpcbf --standard=ruleset.xml src",
-		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php"
+		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
+		"aux-update-pages-templates": "Pages\\Scripts::createTemplates",
+		"pages-update-templates": "@aux-update-templates Pages\\Tests\\Bootstrap"
 	}
 }
