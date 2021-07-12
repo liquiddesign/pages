@@ -19,7 +19,7 @@ use StORM\SchemaManager;
  */
 class PageTemplateRepository extends \StORM\Repository implements IPageTemplateRepository
 {
-	private TemplateFactory $templateFactory;
+	private ?TemplateFactory $templateFactory;
 
 	private LinkGenerator $linkGenerator;
 
@@ -32,9 +32,9 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 	public function __construct(
 		DIConnection $connection,
 		SchemaManager $schemaManager,
-		TemplateFactory $templateFactory,
 		Request $request,
-		LinkGenerator $linkGenerator
+		LinkGenerator $linkGenerator,
+		?TemplateFactory $templateFactory = null
 	) {
 		parent::__construct($connection, $schemaManager);
 
