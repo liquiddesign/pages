@@ -13,6 +13,8 @@ use Pages\Pages;
  */
 class Page extends \StORM\Entity implements IPage
 {
+	public const IMAGE_DIR = 'page';
+	
 	/**
 	 * Page url
 	 * @column{"type":"varchar","unique":true,"mutations":true,"nullable":true}
