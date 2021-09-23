@@ -11,7 +11,6 @@ use Nette\Schema\Schema;
 use Pages\DB\PageRepository;
 use Pages\DB\PageTemplateRepository;
 use Pages\DB\RedirectRepository;
-use Pages\DB\SitemapRepository;
 use Pages\Redirector;
 use Pages\Router;
 use StORM\Entity;
@@ -25,7 +24,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 				'name' => Expect::string()->required(true),
 				'plink' => Expect::string()->required(true),
 				'defaultMask' => Expect::string(),
-				'templateVars' => Expect::arrayOf('string'),
+				'prefetch' => Expect::bool(false),
 			]))->required(),
 			'defaultRoutes' => Expect::bool(true),
 			'defaultMutation' => Expect::string(null)->min(2)->max(2),
@@ -70,12 +69,12 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
 		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
 		$pageTemplateRepository = $builder->addDefinition($this->prefix('pageTemplateRepository'))->setType(PageTemplateRepository::class);
-
+		
 		$pageTemplateRepository->addSetup('setImportTemplates', [
 			$config['templates']->templates,
 			$config['templates']->path,
 		]);
-
+		
 		if ($config['redirects'] && $builder->hasDefinition('application.application')) {
 			$redirector = $builder->addDefinition($this->prefix('redirector'))->setType(Redirector::class);
 			/** @var \Nette\DI\Definitions\ServiceDefinition $application */
@@ -102,7 +101,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		foreach ($config['types'] as $id => $pageType) {
 			$pageType = (array) $pageType;
-			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null]);
+			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null, $pageType['prefetch']]);
 			
 			if (!$config['defaultRoutes'] || !isset($pageType['defaultMask'])) {
 				continue;

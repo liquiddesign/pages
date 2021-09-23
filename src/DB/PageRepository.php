@@ -10,6 +10,7 @@ use Pages\PageType;
 use StORM\Collection;
 use StORM\DIConnection;
 use StORM\Entity;
+use StORM\Meta\Relation;
 use StORM\SchemaManager;
 
 /**
@@ -77,13 +78,15 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	{
 		$pageType = $this->pages->getPageType($pageTypeId);
 		
+		$relationWhere = $this->mapProperties($parameters, true);
+		
 		$type = $pageType->getID();
 		$requiredParameters = $pageType->getRequiredParameters($parameters);
 		$optionalParameters = $pageType->getOptionalParameters($parameters);
 		$page = null;
 		
 		if ($optionalParameters) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters), $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters), $relationWhere, $includeOffline);
 			
 			if ($perfectMatch) {
 				return $page;
@@ -91,7 +94,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		if (!$page) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters), $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters), $relationWhere, $includeOffline);
 		}
 		
 		return $page;
@@ -156,7 +159,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		return $found ? $this->many()->where('this.uuid', $found) : $this->many()->where('1=0');
 	}
 	
-	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, bool $includeOffline = true): ?IPage
+	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, array $relationWhere, bool $includeOffline = true): ?IPage
 	{
 		$pages = $this->many($lang)->where('type', $type);
 		
@@ -169,6 +172,63 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 			$pages->where("url$suffix IS NOT NULL");
 		}
 		
-		return \Nette\Utils\Helpers::falseToNull($pages->where('params', $httpQuery)->first());
+		if ($relationWhere) {
+			$pages->match($relationWhere);
+		}
+		
+		if ($httpQuery) {
+			$pages->where('params', $httpQuery);
+		}
+		
+		return \Nette\Utils\Helpers::falseToNull($pages->first());
+	}
+	
+	/**
+	 * Synchronize page unique indexes
+	 * @param mixed[]|object $values
+	 * @param mixed[] $parameters
+	 * @param string[]|\StORM\Literal[]|null $updateProps
+	 * @param bool|null $filterByColumns
+	 * @param bool|null $ignore
+	 * @param mixed[] $checkKeys
+	 * @param mixed[] $primaryKeyNames
+	 * @throws \StORM\Exception\NotFoundException
+	 * @return \Pages\DB\Page
+	 */
+	public function syncPage($values, ?array $parameters = [], ?array $updateProps = null, ?bool $filterByColumns = false, ?bool $ignore = null, array $checkKeys = [], array $primaryKeyNames = []): Entity
+	{
+		if ($parameters !== null) {
+			if (\is_object($values)) {
+				$values = \StORM\Helpers::toArrayRecursive($values);
+			}
+			
+			$values += $this->mapProperties($parameters);
+			$values['params'] = Helpers::serializeParameters($parameters);
+		}
+		
+		return $this->syncOne($values, $updateProps, $filterByColumns, $ignore, $checkKeys, $primaryKeyNames);
+	}
+	
+	/**
+	 * Returns mapped array by entity relations
+	 * @param mixed[] $parameters
+	 * @param bool $unset
+	 * @return mixed[]
+	 */
+	protected function mapProperties(array &$parameters, bool $unset = false): array
+	{
+		$map = [];
+		
+		foreach ($parameters as $k => $v) {
+			if ($this->getStructure()->getRelation($k) instanceof Relation && $this->getStructure()->getRelation($k)->isKeyHolder()) {
+				$map[$this->getStructure()->getRelation($k)->getSourceKey()] = $v;
+				
+				if ($unset) {
+					unset($parameters[$k]);
+				}
+			}
+		}
+		
+		return $map;
 	}
 }

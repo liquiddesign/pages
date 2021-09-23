@@ -23,6 +23,11 @@ class Pages
 	/**
 	 * @var string[]
 	 */
+	private array $prefetchTypes = [];
+	
+	/**
+	 * @var string[]
+	 */
 	private array $mutations = [];
 	
 	private ?string $defaultMutation = null;
@@ -160,13 +165,18 @@ class Pages
 	 * @param string|null $defaultMask
 	 * @param string[] $templateVars
 	 */
-	public function addPageType(string $id, string $name, string $plink, ?string $defaultMask = null, array $templateVars = []): void
+	public function addPageType(string $id, string $name, string $plink, ?string $defaultMask = null, bool $prefetch = false, array $templateVars = []): void
 	{
 		if (isset($this->pageTypes[$id]) || isset($this->plinkMap[$plink])) {
 			throw new \Nette\DI\InvalidConfigurationException("Duplicate 'ID' ($id) or 'plink' ($plink) pageType: $id");
 		}
 		
+		if ($prefetch) {
+			$this->prefetchTypes[] = $id;
+		}
+		
 		$this->pageTypes[$id] = new PageType($this->presenterFactory, $id, $name, $plink, $defaultMask, $templateVars);
+		
 		$this->plinkMap[$plink] = $id;
 	}
 	
@@ -176,6 +186,14 @@ class Pages
 	public function getPageTypes(): array
 	{
 		return $this->pageTypes;
+	}
+	
+	/**
+	 * @return string[]
+	 */
+	public function getPrefetchTypes(): array
+	{
+		return $this->prefetchTypes;
 	}
 	
 	public function getTypeByPlink(string $plink): ?PageType

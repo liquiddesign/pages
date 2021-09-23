@@ -18,7 +18,7 @@ class Scripts
 		
 		$container = \method_exists($class, 'createContainer') ? $class::createContainer() : $class::boot()->createContainer();
 		
-		/** @var PageTemplateRepository $templates */
+		/** @var \Pages\DB\PageTemplateRepository $templates */
 		$templates = $container->getByType(PageTemplateRepository::class);
 		
 		$templates->updateDatabaseTemplates($arguments);

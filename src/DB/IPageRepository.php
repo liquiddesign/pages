@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pages\DB;
 
 use StORM\DIConnection;
+use StORM\ICollection;
 
 interface IPageRepository
 {

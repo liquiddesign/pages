@@ -8,6 +8,7 @@ use Nette;
 use Nette\Application\Helpers;
 use Nette\Application\UI\Presenter;
 use Pages\DB\IPageRepository;
+use StORM\Repository;
 
 class Router implements \Nette\Routing\Router
 {
@@ -20,7 +21,7 @@ class Router implements \Nette\Routing\Router
 	/**
 	 * @var \Pages\DB\IPage[]|null[]
 	 */
-	private array $outCache = [];
+	private array $outCache;
 	
 	/**
 	 * @var \Pages\DB\IPage[]|null[]
@@ -125,7 +126,17 @@ class Router implements \Nette\Routing\Router
 		
 		unset($params[Presenter::PRESENTER_KEY], $params[Presenter::ACTION_KEY], $params[$this->mutationParameter]);
 		
-		$cacheIndex = $pageType->getID() . \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
+		$serializedParams = \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
+		$cacheIndex = $pageType->getID() . $serializedParams . ($serializedParams ? '&' : '');
+		
+		if ($this->pageRepository instanceof Repository) {
+			$this->outCache ??= $this->pageRepository->many()
+				->where('type', $this->pages->getPrefetchTypes())
+				->setIndex("CONCAT(this.type,this.params)")
+				->toArray();
+		} else {
+			$this->outCache = [];
+		}
 		
 		if (!\array_key_exists($cacheIndex, $this->outCache)) {
 			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false);
