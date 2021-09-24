@@ -176,9 +176,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 			$pages->match($relationWhere);
 		}
 		
-		if ($httpQuery) {
-			$pages->where('params', $httpQuery);
-		}
+		$pages->where('params', $httpQuery);
 		
 		return \Nette\Utils\Helpers::falseToNull($pages->first());
 	}
