@@ -139,6 +139,10 @@ class Router implements \Nette\Routing\Router
 		}
 		
 		if (!\array_key_exists($cacheIndex, $this->outCache)) {
+			if (!$serializedParams && \in_array($pageType->getID(), $this->pages->getPrefetchTypes())) {
+				return null;
+			}
+			
 			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false);
 		}
 		
