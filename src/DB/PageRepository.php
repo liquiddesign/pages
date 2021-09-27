@@ -78,7 +78,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	{
 		$pageType = $this->pages->getPageType($pageTypeId);
 		
-		$relationWhere = $this->mapProperties($parameters, true);
+		$relationWhere = $this->mapProperties($parameters, true, true);
 		
 		$type = $pageType->getID();
 		$requiredParameters = $pageType->getRequiredParameters($parameters);
@@ -200,7 +200,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 				$values = \StORM\Helpers::toArrayRecursive($values);
 			}
 			
-			$values += $this->mapProperties($parameters);
+			$values += $this->mapProperties($parameters, false);
 			$values['params'] = Helpers::serializeParameters($parameters);
 		}
 		
@@ -213,13 +213,13 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param bool $unset
 	 * @return mixed[]
 	 */
-	protected function mapProperties(array &$parameters, bool $unset = false): array
+	protected function mapProperties(array &$parameters, bool $keys = true, bool $unset = false): array
 	{
 		$map = [];
 		
 		foreach ($parameters as $k => $v) {
 			if ($this->getStructure()->getRelation($k) instanceof Relation && $this->getStructure()->getRelation($k)->isKeyHolder()) {
-				$map[$this->getStructure()->getRelation($k)->getSourceKey()] = $v;
+				$map[$keys ? $this->getStructure()->getRelation($k)->getSourceKey() : $k] = $v;
 				
 				if ($unset) {
 					unset($parameters[$k]);

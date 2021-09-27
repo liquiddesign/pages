@@ -98,6 +98,22 @@ class Page extends \StORM\Entity implements IPage
 		return $output;
 	}
 	
+	/**
+	 * @return mixed[]
+	 */
+	public function getPropertyParameters(): array
+	{
+		$properties = [];
+		
+		foreach ($this->getStructure()->getRelations() as $name => $relation) {
+			if ($relation->isKeyHolder()) {
+				$properties[$name] = $this->getValue($name);
+			}
+		}
+		
+		return $properties;
+	}
+	
 	public function getParsedParameter(string $name): ?string
 	{
 		$parameters = $this->getParsedParameters();

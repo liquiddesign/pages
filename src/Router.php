@@ -93,7 +93,7 @@ class Router implements \Nette\Routing\Router
 		$parameters = [
 				Presenter::PRESENTER_KEY => $presenter,
 				Presenter::ACTION_KEY => $action,
-			] + $urlParams + $page->getParsedParameters();
+			] + $urlParams + $page->getParsedParameters() + $page->getPropertyParameters();
 		
 		$parameters = $this->pages->mapParameters($parameters);
 		
@@ -152,7 +152,7 @@ class Router implements \Nette\Routing\Router
 			return null;
 		}
 		
-		$params = \array_diff_key($params, $page->getParsedParameters());
+		$params = \array_diff_key($params, $page->getParsedParameters() + $page->getPropertyParameters());
 		$pageUrl = $page->getUrl($lang);
 		$hasLangPrefix = $lang && $lang !== $defaultLang;
 		$path = $refUrl->getPath() . ($hasLangPrefix ? ($pageUrl ? "$lang/" : $lang) : '') . $pageUrl;
