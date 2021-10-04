@@ -106,8 +106,8 @@ class Page extends \StORM\Entity implements IPage
 		$properties = [];
 		
 		foreach ($this->getStructure()->getRelations() as $name => $relation) {
-			if ($relation->isKeyHolder()) {
-				$properties[$name] = $this->getValue($name);
+			if ($relation->isKeyHolder() && $value = $this->getValue($name)) {
+				$properties[$name] = $value;
 			}
 		}
 		
