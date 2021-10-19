@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pages;
 
 use Nette\Application\BadRequestException;
+use Nette\Application\InvalidPresenterException;
 use Nette\Application\IPresenterFactory;
 use Nette\Application\UI\Presenter;
 use Pages\DB\IPage;
@@ -218,29 +219,31 @@ class Pages
 	 */
 	public function mapParameters(array $params): array
 	{
-		$module = \Pages\Helpers::getModuleName($params);
-		
-		foreach ($this->getParametersOfEntityType(\Pages\Helpers::getFullPresenterName($params), $params[Presenter::ACTION_KEY]) as $name => $class) {
-			if (!isset($params[$name])) {
-				continue;
-			}
+		try {
+			$presenter = \Pages\Helpers::getFullPresenterName($params);
+			$module = \Pages\Helpers::getModuleName($params);
 			
-			$repository = $this->connection->findRepository($class);
-			
-			try {
-				// test if params is actually page itself
-				if ($this->page && \get_class($this->page) === $class && $params[$name] === $this->page->getID()) {
-					$params[$name] = $this->page;
-				} else {
-					$params[$name] = $this->callMapMethod(\strtolower($module), $repository, (string)$params[$name]);
-				}
-			} catch (NotFoundException $exception) {
-				if ($this->mappingThrow404) {
-					throw new BadRequestException("Entity '$class' ID '$params[$name]' not found");
+			foreach ($this->getParametersOfEntityType($presenter, $params[Presenter::ACTION_KEY]) as $name => $class) {
+				if (!isset($params[$name])) {
+					continue;
 				}
 				
-				throw $exception;
+				$repository = $this->connection->findRepository($class);
+				// test if params is actually page itself
+				$params[$name] = $this->page && \get_class($this->page) === $class && $params[$name] === $this->page->getID() ? $this->page : $this->callMapMethod(\strtolower($module), $repository, (string)$params[$name]);
 			}
+		} catch (NotFoundException $exception) {
+			if ($this->mappingThrow404) {
+				throw new BadRequestException("Entity '$class' ID '$params[$name]' not found");
+			}
+			
+			throw $exception;
+		} catch (InvalidPresenterException $exception) {
+			if ($this->mappingThrow404) {
+				throw new BadRequestException("Presenter '$presenter' not  found");
+			}
+			
+			throw $exception;
 		}
 		
 		return $params;

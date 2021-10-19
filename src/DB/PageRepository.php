@@ -6,7 +6,6 @@ namespace Pages\DB;
 
 use Pages\Helpers;
 use Pages\Pages;
-use Pages\PageType;
 use StORM\Collection;
 use StORM\DIConnection;
 use StORM\Entity;
@@ -72,7 +71,6 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param mixed[] $parameters
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
-	 * @return \Pages\DB\IPage|null
 	 */
 	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage
 	{
@@ -159,28 +157,6 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		return $found ? $this->many()->where('this.uuid', $found) : $this->many()->where('1=0');
 	}
 	
-	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, array $relationWhere, bool $includeOffline = true): ?IPage
-	{
-		$pages = $this->many($lang)->where('type', $type);
-		
-		if (!$includeOffline) {
-			$pages->where('isOffline', false);
-		}
-		
-		if ($lang) {
-			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
-			$pages->where("url$suffix IS NOT NULL");
-		}
-		
-		if ($relationWhere) {
-			$pages->match($relationWhere);
-		}
-		
-		$pages->where('params', $httpQuery);
-		
-		return \Nette\Utils\Helpers::falseToNull($pages->first());
-	}
-	
 	/**
 	 * Synchronize page unique indexes
 	 * @param mixed[]|object $values
@@ -206,7 +182,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		return $this->syncOne($values, $updateProps, $filterByColumns, $ignore, $checkKeys, $primaryKeyNames);
 	}
-	
+
 	/**
 	 * Returns mapped array by entity relations
 	 * @param mixed[] $parameters
@@ -228,5 +204,27 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		return $map;
+	}
+
+	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, array $relationWhere, bool $includeOffline = true): ?IPage
+	{
+		$pages = $this->many($lang)->where('type', $type);
+		
+		if (!$includeOffline) {
+			$pages->where('isOffline', false);
+		}
+		
+		if ($lang) {
+			$suffix = $this->getConnection()->getAvailableMutations()[$lang] ?? '';
+			$pages->where("url$suffix IS NOT NULL");
+		}
+		
+		if ($relationWhere) {
+			$pages->match($relationWhere);
+		}
+		
+		$pages->where('params', $httpQuery);
+		
+		return \Nette\Utils\Helpers::falseToNull($pages->first());
 	}
 }

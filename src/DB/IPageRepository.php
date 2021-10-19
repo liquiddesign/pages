@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pages\DB;
 
 use StORM\DIConnection;
-use StORM\ICollection;
 
 interface IPageRepository
 {
@@ -19,7 +18,6 @@ interface IPageRepository
 	 * @param mixed[] $parameters
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
-	 * @return \Pages\DB\IPage|null
 	 */
 	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage;
 	

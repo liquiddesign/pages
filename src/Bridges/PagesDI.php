@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pages\Bridges;
 
 use Nette\Application\Helpers;
+use Nette\Application\Routers\RouteList;
 use Nette\Routing\Route;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
@@ -82,13 +83,10 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			$application->addSetup('$onStartup[]', [[$redirector, 'handleRedirect']]);
 		}
 		
-		if ($builder->hasDefinition('routing.router')) {
-			/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
-			$routerListDef = $builder->getDefinition('routing.router');
-		} else {
-			/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
-			$routerListDef = $builder->addDefinition('routing.router')->setType(\Nette\Application\Routers\RouteList::class);
-		}
+		$serviceName = 'routing.router';
+		
+		/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
+		$routerListDef = $builder->hasDefinition($serviceName) ? $builder->getDefinition($serviceName) : $builder->addDefinition($serviceName)->setType(RouteList::class);
 		
 		$routerListDef->addSetup('add', [$def]);
 		
@@ -117,7 +115,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		return;
 	}
 	
-	public function beforeCompile()
+	public function beforeCompile(): void
 	{
 		$builder = $this->getContainerBuilder();
 		
