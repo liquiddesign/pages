@@ -19,6 +19,11 @@ interface IPage
 
 	public function getParsedParameter(string $name): ?string;
 	
+	/**
+	 * @return mixed[]
+	 */
+	public function getPropertyParameters(): array;
+	
 	public function getType(): string;
 	
 	/**

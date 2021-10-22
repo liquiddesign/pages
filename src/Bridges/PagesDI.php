@@ -6,6 +6,7 @@ namespace Pages\Bridges;
 
 use Nette\Application\Helpers;
 use Nette\Application\Routers\RouteList;
+use Nette\DI\Definitions\ServiceDefinition;
 use Nette\Routing\Route;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
@@ -16,6 +17,9 @@ use Pages\Redirector;
 use Pages\Router;
 use StORM\Entity;
 
+/**
+ * @property \stdClass $config
+ */
 class PagesDI extends \Nette\DI\CompilerExtension
 {
 	public function getConfigSchema(): Schema
@@ -27,6 +31,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 				'defaultMask' => Expect::string(),
 				'prefetch' => Expect::bool(false),
 			]))->required(),
+			'debugger' => Expect::bool(false),
 			'defaultRoutes' => Expect::bool(true),
 			'defaultMutation' => Expect::string(null)->min(2)->max(2),
 			'mutations' => Expect::arrayOf('string|array'),
@@ -59,17 +64,17 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		/** @var \Nette\DI\ContainerBuilder $builder */
 		$builder = $this->getContainerBuilder();
 		
-		$pages = $builder->addDefinition($this->prefix('pages'))->setType(\Pages\Pages::class);
+		$pages = $builder->addDefinition($this->prefix('pages'), new ServiceDefinition())->setType(\Pages\Pages::class);
 		$pages->addSetup('setMutations', [$mutations]);
 		$pages->addSetup('setDefaultMutation', [$defaultMutation]);
 		$pages->addSetup('setMapping', [$config['mapping']['methods'], $config['mapping']['class'], $config['mapping']['throw404']]);
 		$pages->addSetup('setFilterIn', [$config['filterIn']]);
 		$pages->addSetup('setFilterOut', [$config['filterOut']]);
 		
-		$def = $builder->addDefinition($this->prefix('router'))->setType(Router::class)->setArgument('mutationParameter', $mutationParameter)->setAutowired(false);
-		$builder->addDefinition($this->prefix('pageRepository'))->setType(PageRepository::class);
-		$builder->addDefinition($this->prefix('redirectRepository'))->setType(RedirectRepository::class);
-		$pageTemplateRepository = $builder->addDefinition($this->prefix('pageTemplateRepository'))->setType(PageTemplateRepository::class);
+		$def = $builder->addDefinition($this->prefix('router'), new ServiceDefinition())->setType(Router::class)->setArgument('mutationParameter', $mutationParameter)->setAutowired(false);
+		$builder->addDefinition($this->prefix('pageRepository'), new ServiceDefinition())->setType(PageRepository::class);
+		$builder->addDefinition($this->prefix('redirectRepository'), new ServiceDefinition())->setType(RedirectRepository::class);
+		$pageTemplateRepository = $builder->addDefinition($this->prefix('pageTemplateRepository'), new ServiceDefinition())->setType(PageTemplateRepository::class);
 		
 		$pageTemplateRepository->addSetup('setImportTemplates', [
 			$config['templates']->templates,
@@ -77,7 +82,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		]);
 		
 		if ($config['redirects'] && $builder->hasDefinition('application.application')) {
-			$redirector = $builder->addDefinition($this->prefix('redirector'))->setType(Redirector::class);
+			$redirector = $builder->addDefinition($this->prefix('redirector'), new ServiceDefinition())->setType(Redirector::class);
 			/** @var \Nette\DI\Definitions\ServiceDefinition $application */
 			$application = $builder->getDefinition('application.application');
 			$application->addSetup('$onStartup[]', [[$redirector, 'handleRedirect']]);
@@ -86,7 +91,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$serviceName = 'routing.router';
 		
 		/** @var \Nette\DI\Definitions\ServiceDefinition $routerListDef */
-		$routerListDef = $builder->hasDefinition($serviceName) ? $builder->getDefinition($serviceName) : $builder->addDefinition($serviceName)->setType(RouteList::class);
+		$routerListDef = $builder->hasDefinition($serviceName) ? $builder->getDefinition($serviceName) : $builder->addDefinition($serviceName, new ServiceDefinition())->setType(RouteList::class);
 		
 		$routerListDef->addSetup('add', [$def]);
 		
@@ -119,8 +124,15 @@ class PagesDI extends \Nette\DI\CompilerExtension
 	{
 		$builder = $this->getContainerBuilder();
 		
-		$builder->getDefinition($this->prefix('pageRepository'))->addSetup('@Tracy\Bar::addPanel', [
-			new \Nette\DI\Definitions\Statement(PagesTracy::class),
-		]);
+		/** @var \Nette\DI\Definitions\ServiceDefinition $serviceDefinition */
+		$serviceDefinition = $builder->getDefinition($this->prefix('pageRepository'));
+		
+		if ($this->config->debugger ?? $builder->getByType(\Tracy\Bar::class)) {
+			$serviceDefinition->addSetup('@Tracy\Bar::addPanel', [
+				new \Nette\DI\Definitions\Statement(PagesTracy::class),
+			]);
+		}
+		
+		return;
 	}
 }

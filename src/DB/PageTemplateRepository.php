@@ -22,9 +22,15 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 	private ?TemplateFactory $templateFactory;
 
 	private LinkGenerator $linkGenerator;
-
+	
+	/**
+	 * @var string[]
+	 */
 	private array $importTemplates = [];
-
+	
+	/**
+	 * @var string[]
+	 */
 	private array $importPath = [];
 
 	private string $baseUrl;
@@ -43,7 +49,12 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 
 		$this->baseUrl = $request->getUrl()->getBaseUrl();
 	}
-
+	
+	/**
+	 * @param bool $includeHidden
+	 * @param string|null $type
+	 * @return string[]
+	 */
 	public function getArrayForSelect(bool $includeHidden = true, ?string $type = null): array
 	{
 		$collection = $this->getCollection($includeHidden);
@@ -57,6 +68,8 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 
 	public function getCollection(bool $includeHidden = false): Collection
 	{
+		unset($includeHidden);
+		
 		$collection = $this->many();
 
 		return $collection->orderBy(["name"]);
@@ -93,6 +106,7 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 			$fileContent = FileSystem::read($path . $item . '.latte');
 			$template->render($fileContent, $params + ['pageTemplate' => $pageTemplate, 'baseUrl' => $this->baseUrl]);
 
+			/** @phpstan-ignore-next-line */
 			$item = $this->one($pageTemplate->uuid);
 
 			if ($item === null) {

@@ -169,8 +169,15 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @throws \StORM\Exception\NotFoundException
 	 * @return \Pages\DB\Page
 	 */
-	public function syncPage($values, ?array $parameters = [], ?array $updateProps = null, ?bool $filterByColumns = false, ?bool $ignore = null, array $checkKeys = [], array $primaryKeyNames = []): Entity
-	{
+	public function syncPage(
+		$values,
+		?array $parameters = [],
+		?array $updateProps = null,
+		?bool $filterByColumns = false,
+		?bool $ignore = null,
+		array $checkKeys = [],
+		array $primaryKeyNames = []
+	): Entity {
 		if ($parameters !== null) {
 			if (\is_object($values)) {
 				$values = \StORM\Helpers::toArrayRecursive($values);

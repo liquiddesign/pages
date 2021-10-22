@@ -12,7 +12,7 @@
 		"nette/caching":"~3.0",
 		"nette/routing":"~3.0",
 		"latte/latte":"~2.0",
-		"nette/di":"~3.0",
+		"nette/di":"*",
 		"tracy/tracy":"*",
 		"liquiddesign/storm": "@dev",
 		"ext-pdo": "*"
