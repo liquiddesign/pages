@@ -88,7 +88,7 @@ class Page extends \StORM\Entity implements IPage
 	}
 	
 	/**
-	 * @return string[]
+	 * @return string[]|null[]
 	 */
 	public function getParsedParameters(): array
 	{
@@ -118,7 +118,7 @@ class Page extends \StORM\Entity implements IPage
 	{
 		$parameters = $this->getParsedParameters();
 		
-		return (string) $parameters[$name] ?? null;
+		return isset($parameters[$name]) && $parameters[$name] !== null ? $parameters[$name] : null;
 	}
 	
 	public function getUrl(?string $lang): ?string

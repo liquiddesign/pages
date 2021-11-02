@@ -13,7 +13,7 @@ interface IPage
 	public function getParameters(): string;
 	
 	/**
-	 * @return string[]
+	 * @return string[]|null[]
 	 */
 	public function getParsedParameters(): array;
 
