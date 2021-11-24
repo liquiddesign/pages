@@ -159,7 +159,7 @@ class PageType
 			
 			foreach ($rm->getParameters() as $p) {
 				$name = $p->getName();
-				$type = $p->getClass() ? $p->getClass()->getName() : $p->getType();
+				$type = $p->getType() ? $p->getType()->getName() : $p->getType();
 				$p->allowsNull() ? $parameters[1][$name] = $type : $parameters[0][$name] = $type;
 			}
 		} catch (\ReflectionException $x) {
