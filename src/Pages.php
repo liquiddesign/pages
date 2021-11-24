@@ -291,12 +291,12 @@ class Pages
 			$rm = new \ReflectionMethod($presenterClass, $method);
 			
 			foreach ($rm->getParameters() as $p) {
-				if (!$p->getClass() || !\is_subclass_of($p->getClass()->getName(), $this->mappingClass)) {
+				if (!$p->getType() || !\is_subclass_of($p->getType()->getName(), $this->mappingClass)) {
 					continue;
 				}
 				
 				$name = $p->getName();
-				$this->cachedParams[$key][$name] = $p->getClass()->getName();
+				$this->cachedParams[$key][$name] = $p->getType()->getName();
 			}
 		}
 		
