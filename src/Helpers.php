@@ -6,6 +6,7 @@ namespace Pages;
 
 use Nette;
 use Nette\Application\UI\Presenter;
+use StORM\Entity;
 
 final class Helpers
 {
@@ -36,7 +37,9 @@ final class Helpers
 	public static function serializeParameters(array $parameters): string
 	{
 		foreach ($parameters as $name => $value) {
-			$parameters[$name] = (string) $value;
+			if (\is_scalar($value) || $value instanceof Entity) {
+				$parameters[$name] = (string) $value;
+			}
 		}
 		
 		if (\count($parameters) > 1) {

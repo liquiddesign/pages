@@ -132,7 +132,7 @@ class Router implements \Nette\Routing\Router
 		if ($this->pageRepository instanceof Repository) {
 			$this->outCache ??= $this->pageRepository->many()
 				->where('type', $this->pages->getPrefetchTypes())
-				->setIndex("CONCAT(this.type,this.params)")
+				->setIndex('CONCAT(this.type,this.params)')
 				->toArray();
 		} else {
 			$this->outCache = [];

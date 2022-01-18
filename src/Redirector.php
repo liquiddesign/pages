@@ -17,11 +17,6 @@ class Redirector
 	
 	private \Nette\Http\Request $httpRequest;
 	
-	/**
-	 * @var bool[]
-	 */
-	private array $redirectCache;
-	
 	private \Pages\Pages $pages;
 	
 	public function __construct(Pages $pages, Response $httpResponse, Request $httpRequest, IRedirectRepository $redirectRepository)
@@ -43,7 +38,7 @@ class Redirector
 			$lang = $this->pages->getDefaultMutation();
 		}
 		
-		if (!isset($this->redirectCache["$lang-$pageUrl"]) && $redirect = $this->redirectRepository->getRedirect($pageUrl, $lang)) {
+		if ($redirect = $this->redirectRepository->getRedirect($pageUrl, $lang)) {
 			// @phpstan-ignore-next-line
 			$application->onShutdown($application);
 			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation()), 301);

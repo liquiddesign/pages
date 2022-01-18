@@ -32,5 +32,10 @@
 		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
 		"aux-update-pages-templates": "Pages\\Scripts::createTemplates",
 		"pages-update-templates": "@aux-update-templates Pages\\Tests\\Bootstrap"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }

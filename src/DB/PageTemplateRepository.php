@@ -72,7 +72,7 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 		
 		$collection = $this->many();
 
-		return $collection->orderBy(["name"]);
+		return $collection->orderBy(['name']);
 	}
 
 	public function setImportTemplates(array $templates, array $path): void

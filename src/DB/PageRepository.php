@@ -124,7 +124,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$pages = $this->many()
 			->where('type', $page->type)
 			->whereNot('this.uuid', $page->getPK())
-			->where("params LIKE :params", ['params' => $page->params . '%'])
+			->where('params LIKE :params', ['params' => $page->params . '%'])
 			->orderBy(['LENGTH(params)' => 'DESC']);
 		
 		if ($levelDown !== null) {
