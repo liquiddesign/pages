@@ -84,7 +84,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$page = null;
 		
 		if ($optionalParameters) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters + $optionalParameters), $relationWhere, $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters + $optionalParameters, $relationWhere, $includeOffline);
 			
 			if ($perfectMatch) {
 				return $page;
@@ -92,7 +92,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		if (!$page) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, Helpers::serializeParameters($requiredParameters), $relationWhere, $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters, $relationWhere, $includeOffline);
 		}
 		
 		return $page;
@@ -212,9 +212,18 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		return $map;
 	}
-
-	private function getPageByTypeLangQuery(string $type, ?string $lang, string $httpQuery, array $relationWhere, bool $includeOffline = true): ?IPage
+	
+	/**
+	 * @param string $type
+	 * @param string|null $lang
+	 * @param mixed[] $params
+	 * @param mixed[] $relationWhere
+	 * @param bool $includeOffline
+	 */
+	private function getPageByTypeLangQuery(string $type, ?string $lang, array $params, array $relationWhere, bool $includeOffline = true): ?IPage
 	{
+		$httpQuery = Helpers::serializeParameters($params);
+		
 		$pages = $this->many($lang)->where('type', $type);
 		
 		if (!$includeOffline) {
@@ -227,10 +236,15 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		if ($relationWhere) {
-			$pages->match($relationWhere);
+			$pages->whereMatch($relationWhere);
 		}
 		
-		$pages->where('params', $httpQuery);
+		if (\count($params) > 1) {
+			$pages->where(":query LIKE CONCAT(params, '%')", ['query' => $httpQuery])
+				->orderBy(["(LENGTH(params) - LENGTH(REPLACE(params,'&','')))" => 'DESC']);
+		} else {
+			$pages->where('params', $httpQuery);
+		}
 		
 		return \Nette\Utils\Helpers::falseToNull($pages->first());
 	}
