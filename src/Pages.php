@@ -166,9 +166,9 @@ class Pages
 	 * @param string|null $defaultMask
 	 * @param string[] $templateVars
 	 */
-	public function addPageType(string $id, string $name, string $plink, ?string $defaultMask = null, bool $prefetch = false, array $templateVars = []): void
+	public function addPageType(string $id, string $name, string $plink, ?string $defaultMask = null, bool $prefetch = false, array $templateVars = [], ?string $mutation = null): void
 	{
-		if (isset($this->pageTypes[$id]) || isset($this->plinkMap[$plink])) {
+		if (isset($this->pageTypes[$id]) || isset($this->plinkMap[$plink . ($mutation ?? '')])) {
 			throw new \Nette\DI\InvalidConfigurationException("Duplicate 'ID' ($id) or 'plink' ($plink) pageType: $id");
 		}
 		
@@ -178,7 +178,7 @@ class Pages
 		
 		$this->pageTypes[$id] = new PageType($this->presenterFactory, $id, $name, $plink, $defaultMask, $templateVars);
 		
-		$this->plinkMap[$plink] = $id;
+		$this->plinkMap[$plink . ($mutation ?? '')] = $id;
 	}
 	
 	/**
@@ -197,10 +197,10 @@ class Pages
 		return $this->prefetchTypes;
 	}
 	
-	public function getTypeByPlink(string $plink): ?PageType
+	public function getTypeByPlink(string $plink, ?string $mutation = null): ?PageType
 	{
-		if (isset($this->plinkMap[$plink])) {
-			return $this->pageTypes[$this->plinkMap[$plink]] ?? null;
+		if (isset($this->plinkMap[$plink . ($mutation ?? '')])) {
+			return $this->pageTypes[$this->plinkMap[$plink . ($mutation ?? '')]] ?? null;
 		}
 		
 		return null;

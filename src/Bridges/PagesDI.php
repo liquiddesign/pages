@@ -28,6 +28,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			'types' => Expect::arrayOf(Expect::structure([
 				'name' => Expect::string()->required(true),
 				'plink' => Expect::string()->required(true),
+				'lang' => Expect::string(),
 				'defaultMask' => Expect::string(),
 				'prefetch' => Expect::bool(false),
 			]))->required(),
@@ -104,17 +105,25 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		foreach ($config['types'] as $id => $pageType) {
 			$pageType = (array) $pageType;
-			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null, $pageType['prefetch']]);
+			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null, $pageType['prefetch'], [], $pageType['lang']]);
 			
 			if (!$config['defaultRoutes'] || !isset($pageType['defaultMask'])) {
 				continue;
 			}
 			
 			[$presenter, $action] = Helpers::splitName($pageType['plink']);
-			$routerListDef->addSetup('addRoute', [$langMask . $pageType['defaultMask'], ['presenter' => $presenter, 'action' => $action, null => [
+			
+			$options = ['presenter' => $presenter, 'action' => $action, null => [
 				Route::FILTER_OUT => [$pages, 'unmapParameters'],
 				Route::FILTER_IN => [$pages, 'mapParameters'],
-			]]]);
+			]];
+			
+			if ($pageType['lang']) {
+				$langMask = $pageType['lang'] . '/';
+				$options['lang'] = $pageType['lang'];
+			}
+			
+			$routerListDef->addSetup('addRoute', [$langMask . $pageType['defaultMask'], $options]);
 		}
 		
 		return;
