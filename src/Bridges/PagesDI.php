@@ -119,7 +119,8 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			]];
 			
 			if ($pageType['lang']) {
-				$langMask = $pageType['lang'] . '/';
+				$langMask = ($defaultMutation && $defaultMutation === $pageType['lang']) ? '' : $pageType['lang'] . '/';
+			
 				$options['lang'] = $pageType['lang'];
 			}
 			
