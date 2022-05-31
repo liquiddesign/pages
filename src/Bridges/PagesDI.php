@@ -96,13 +96,6 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		
 		$routerListDef->addSetup('add', [$def]);
 		
-		$langMask = '';
-		
-		if ($defaultMutation && $mutations) {
-			$langString = \implode('|', $mutations);
-			$langMask = "[<$mutationParameter=$defaultMutation $langString>/]";
-		}
-		
 		foreach ($config['types'] as $id => $pageType) {
 			$pageType = (array) $pageType;
 			$pages->addSetup('addPageType', [$id, $pageType['name'], $pageType['plink'], $pageType['defaultMask'] ?? null, $pageType['prefetch'], [], $pageType['lang']]);
@@ -120,8 +113,12 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			
 			if ($pageType['lang']) {
 				$langMask = $defaultMutation && $defaultMutation === $pageType['lang'] ? '' : $pageType['lang'] . '/';
-			
 				$options['lang'] = $pageType['lang'];
+			} elseif ($defaultMutation && $mutations) {
+				$langString = \implode('|', $mutations);
+				$langMask = "[<$mutationParameter=$defaultMutation $langString>/]";
+			} else {
+				$langMask = '';
 			}
 			
 			$routerListDef->addSetup('addRoute', [$langMask . $pageType['defaultMask'], $options]);
