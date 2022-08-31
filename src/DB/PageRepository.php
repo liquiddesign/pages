@@ -201,7 +201,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$map = [];
 		
 		foreach ($parameters as $k => $v) {
-			if ($this->getStructure()->getRelation($k) instanceof Relation && $this->getStructure()->getRelation($k)->isKeyHolder()) {
+			if (\is_string($k) && $this->getStructure()->getRelation($k) instanceof Relation && $this->getStructure()->getRelation($k)->isKeyHolder()) {
 				$map[$keys ? $this->getStructure()->getRelation($k)->getSourceKey() : $k] = $v;
 				
 				if ($unset) {
