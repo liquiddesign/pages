@@ -6,6 +6,7 @@ namespace Pages;
 
 use Nette\Http\Request;
 use Nette\Http\Response;
+use Nette\Utils\Strings;
 use Pages\DB\IRedirectRepository;
 use Pages\DB\Redirect;
 
@@ -37,6 +38,8 @@ class Redirector
 		if ($url->getQuery()) {
 			$pageUrl .= '?' . $url->getQuery();
 		}
+		
+		$pageUrl = Strings::lower($pageUrl);
 		
 		if (!\in_array($lang, $this->pages->getMutations()) || $lang === $this->pages->getDefaultMutation()) {
 			$lang = $this->pages->getDefaultMutation();
