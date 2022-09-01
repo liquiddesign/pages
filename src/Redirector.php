@@ -34,6 +34,10 @@ class Redirector
 		$pageUrl = (string) \substr($url->getPath(), \strlen($url->getBasePath()));
 		$lang = \strtok($pageUrl, '/');
 		
+		if ($url->getQuery()) {
+			$pageUrl .= '?' . $url->getQuery();
+		}
+		
 		if (!\in_array($lang, $this->pages->getMutations()) || $lang === $this->pages->getDefaultMutation()) {
 			$lang = $this->pages->getDefaultMutation();
 		}
@@ -61,6 +65,7 @@ class Redirector
 		$redirectUrl->setPath($path);
 		$redirectUrl->appendQuery($request->getQuery());
 		$redirectUrl->setFragment($url->getFragment());
+		$redirectUrl->setQuery('');
 		
 		return (string) $redirectUrl;
 	}
