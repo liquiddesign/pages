@@ -15,7 +15,7 @@ class RedirectRepository extends \StORM\Repository implements IRedirectRepositor
 	public function getRedirect(string $url, ?string $mutation): ?Redirect
 	{
 		$redirects = $this->many()
-			->where('IF(fromUrl = "/","",fromUrl)', $url)
+			->where('IF(fromUrl = "/","",LOWER(fromUrl))', $url)
 			->orderBy(['priority' => 'ASC', 'createdTs' => 'DESC']);
 		
 		if ($mutation) {
