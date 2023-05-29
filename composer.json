@@ -7,21 +7,22 @@
 	},
 	"require" :
 	{
-		"php":">=7.4",
-		"nette/application":"~3.0",
-		"nette/caching":"~3.0",
+		"php":">=8.2",
+		"nette/application":"~3.1",
+		"nette/caching":"~3.2",
 		"nette/routing":"~3.0",
-		"latte/latte":"~2.0 || ~3.0",
-		"nette/di":"~3.0",
-		"tracy/tracy":"^2.0",
+		"latte/latte":"~3.0",
+		"nette/di":"~3.1",
+		"tracy/tracy":"^2.10",
 		"liquiddesign/storm": "~1.0",
+		"liquiddesign/base": "v2.x-dev",
 		"ext-pdo": "*"
 	},
 	"require-dev": 
 	{
 		"nette/tester":"^2.0",
 		"composer/composer": "^2.0",
-		"liquiddesign/codestyle": "^1.0",
+		"liquiddesign/codestyle": "^3.0",
 		"phpstan/phpstan": "^1.0"
 	},
 	"scripts": {

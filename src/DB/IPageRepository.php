@@ -15,7 +15,7 @@ interface IPageRepository
 	/**
 	 * @param string $pageTypeId
 	 * @param string|null $lang
-	 * @param mixed[] $parameters
+	 * @param array<mixed> $parameters
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
 	 */

@@ -24,12 +24,12 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 	private LinkGenerator $linkGenerator;
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $importTemplates = [];
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $importPath = [];
 
@@ -53,7 +53,7 @@ class PageTemplateRepository extends \StORM\Repository implements IPageTemplateR
 	/**
 	 * @param bool $includeHidden
 	 * @param string|null $type
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function getArrayForSelect(bool $includeHidden = true, ?string $type = null): array
 	{

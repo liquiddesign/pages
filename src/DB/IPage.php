@@ -13,22 +13,22 @@ interface IPage
 	public function getParameters(): string;
 	
 	/**
-	 * @return string[]|null[]
+	 * @return array<string>|array<null>
 	 */
 	public function getParsedParameters(): array;
 
 	public function getParsedParameter(string $name): ?string;
 	
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	public function getPropertyParameters(): array;
 	
 	public function getType(): string;
 	
 	/**
-	 * @param mixed[] $vars
-	 * @param string[]|null $validateNames
+	 * @param array<mixed> $vars
+	 * @param array<string>|null $validateNames
 	 */
 	public function setTemplateVars(array $vars, ?array $validateNames): void;
 	

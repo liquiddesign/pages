@@ -7,6 +7,8 @@ namespace Pages;
 use Nette;
 use Nette\Application\Helpers;
 use Nette\Application\UI\Presenter;
+use Nette\Utils\Arrays;
+use Nette\Utils\Strings;
 use Pages\DB\IPageRepository;
 use StORM\Repository;
 
@@ -19,12 +21,12 @@ class Router implements \Nette\Routing\Router
 	private \Pages\DB\IPageRepository $pageRepository;
 	
 	/**
-	 * @var \Pages\DB\IPage[]|null[]
+	 * @var array<\Pages\DB\IPage>|array<null>
 	 */
 	private array $outCache;
 	
 	/**
-	 * @var \Pages\DB\IPage[]|null[]
+	 * @var array<\Pages\DB\IPage>|array<null>
 	 */
 	private array $inCache = [];
 	
@@ -38,7 +40,7 @@ class Router implements \Nette\Routing\Router
 	/**
 	 * Maps HTTP request to an array.
 	 * @param \Nette\Http\IRequest $httpRequest
-	 * @return string[]
+	 * @return ?array<string>
 	 */
 	public function match(Nette\Http\IRequest $httpRequest): ?array
 	{
@@ -49,10 +51,10 @@ class Router implements \Nette\Routing\Router
 		$defaultMutation = $this->pages->getDefaultMutation();
 		
 		// parsing url
-		$pageUrl = (string) \substr($url->getPath(), \strlen($url->getBasePath()));
+		$pageUrl = (string) Strings::substring($url->getPath(), Strings::length($url->getBasePath()));
 		$lang = \strtok($pageUrl, '/');
 		
-		if (!\in_array($lang, $mutations) || $lang === $defaultMutation) {
+		if (!Arrays::contains($mutations, $lang) || $lang === $defaultMutation) {
 			$lang = $defaultMutation;
 		}
 		
@@ -67,7 +69,7 @@ class Router implements \Nette\Routing\Router
 		
 		// strip lang prefix
 		if ($lang !== $defaultMutation) {
-			$pageUrl = (string)\substr($pageUrl, \strlen($lang) + 1);
+			$pageUrl = (string) Strings::substring($pageUrl, Strings::length($lang) + 1);
 		}
 		
 		// try get by url
@@ -106,7 +108,7 @@ class Router implements \Nette\Routing\Router
 	
 	/**
 	 * Constructs absolute URL from array.
-	 * @param string[] $params
+	 * @param array<string> $params
 	 * @param \Nette\Http\UrlScript $refUrl
 	 */
 	public function constructUrl(array $params, Nette\Http\UrlScript $refUrl): ?string
@@ -139,7 +141,7 @@ class Router implements \Nette\Routing\Router
 		}
 		
 		if (!\array_key_exists($cacheIndex, $this->outCache)) {
-			if (!$serializedParams && \in_array($pageType->getID(), $this->pages->getPrefetchTypes())) {
+			if (!$serializedParams && Arrays::contains($this->pages->getPrefetchTypes(), $pageType->getID())) {
 				return null;
 			}
 			

@@ -6,6 +6,7 @@ namespace Pages;
 
 use Nette\Http\Request;
 use Nette\Http\Response;
+use Nette\Utils\Arrays;
 use Nette\Utils\Strings;
 use Pages\DB\IRedirectRepository;
 use Pages\DB\Redirect;
@@ -32,7 +33,7 @@ class Redirector
 	{
 		$url = $this->httpRequest->getUrl();
 		
-		$pageUrl = (string) \substr($url->getPath(), \strlen($url->getBasePath()));
+		$pageUrl = (string) Strings::substring($url->getPath(), Strings::length($url->getBasePath()));
 		$lang = \strtok($pageUrl, '/');
 		
 		if ($url->getQuery()) {
@@ -41,7 +42,7 @@ class Redirector
 		
 		$pageUrl = Strings::lower($pageUrl);
 		
-		if (!\in_array($lang, $this->pages->getMutations()) || $lang === $this->pages->getDefaultMutation()) {
+		if (!Arrays::contains($this->pages->getMutations(), $lang) || $lang === $this->pages->getDefaultMutation()) {
 			$lang = $this->pages->getDefaultMutation();
 		}
 		

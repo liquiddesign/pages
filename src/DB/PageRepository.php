@@ -68,7 +68,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	/**
 	 * @param string $pageTypeId
 	 * @param string|null $lang
-	 * @param mixed[] $parameters
+	 * @param array<mixed> $parameters
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
 	 */
@@ -159,13 +159,13 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	
 	/**
 	 * Synchronize page unique indexes
-	 * @param mixed[]|object $values
-	 * @param mixed[] $parameters
-	 * @param string[]|\StORM\Literal[]|null $updateProps
+	 * @param array<mixed>|object $values
+	 * @param ?array<mixed> $parameters
+	 * @param array<string>|array<\StORM\Literal>|null $updateProps
 	 * @param bool|null $filterByColumns
 	 * @param bool|null $ignore
-	 * @param mixed[] $checkKeys
-	 * @param mixed[] $primaryKeyNames
+	 * @param array<mixed> $checkKeys
+	 * @param array<mixed> $primaryKeyNames
 	 * @throws \StORM\Exception\NotFoundException
 	 * @return \Pages\DB\Page
 	 */
@@ -192,9 +192,9 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 
 	/**
 	 * Returns mapped array by entity relations
-	 * @param mixed[] $parameters
+	 * @param array<mixed> $parameters
 	 * @param bool $unset
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	protected function mapProperties(array &$parameters, bool $keys = true, bool $unset = false): array
 	{
@@ -216,8 +216,8 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	/**
 	 * @param string $type
 	 * @param string|null $lang
-	 * @param mixed[] $params
-	 * @param mixed[] $relationWhere
+	 * @param array<mixed> $params
+	 * @param array<mixed> $relationWhere
 	 * @param bool $includeOffline
 	 */
 	private function getPageByTypeLangQuery(string $type, ?string $lang, array $params, array $relationWhere, bool $includeOffline = true): ?IPage

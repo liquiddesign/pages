@@ -17,17 +17,17 @@ class PageType
 	private string $plink;
 	
 	/**
-	 * @var mixed[]|null
+	 * @var array<mixed>|null
 	 */
 	private ?array $requiredParameters = null;
 	
 	/**
-	 * @var mixed[]|null
+	 * @var array<mixed>|null
 	 */
 	private ?array $optionalParameters = null;
 	
 	/**
-	 * @var mixed[]|null
+	 * @var array<mixed>|null
 	 */
 	private ?array $parameters = null;
 	
@@ -36,7 +36,7 @@ class PageType
 	private ?string $defaultMask;
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $templateVarNames;
 	
@@ -47,7 +47,7 @@ class PageType
 	 * @param string $name
 	 * @param string $plink
 	 * @param string|null $defaultMask
-	 * @param string[] $templateVarNames
+	 * @param array<string> $templateVarNames
 	 */
 	public function __construct(IPresenterFactory $presenterFactory, string $id, string $name, string $plink, ?string $defaultMask, array $templateVarNames)
 	{
@@ -80,8 +80,8 @@ class PageType
 	}
 	
 	/**
-	 * @param mixed[]|null $fillParams
-	 * @return mixed[]
+	 * @param array<mixed>|null $fillParams
+	 * @return array<mixed>
 	 */
 	public function getRequiredParameters(?array $fillParams = null): array
 	{
@@ -97,8 +97,8 @@ class PageType
 	}
 	
 	/**
-	 * @param mixed[]|null $fillParams
-	 * @return mixed[]
+	 * @param array<mixed>|null $fillParams
+	 * @return array<mixed>
 	 */
 	public function getOptionalParameters(?array $fillParams = null): array
 	{
@@ -114,8 +114,8 @@ class PageType
 	}
 	
 	/**
-	 * @param mixed[]|null $fillParams
-	 * @return mixed[]
+	 * @param array<mixed>|null $fillParams
+	 * @return array<mixed>
 	 */
 	public function getParameters(?array $fillParams = null): array
 	{
@@ -131,7 +131,7 @@ class PageType
 	}
 	
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function getTemplateVarNames(): array
 	{
@@ -139,7 +139,7 @@ class PageType
 	}
 	
 	/**
-	 * @return string[][]
+	 * @return array<array<string>>
 	 */
 	private function getActionParameters(): array
 	{
@@ -174,9 +174,9 @@ class PageType
 	}
 	
 	/**
-	 * @param mixed[] $names
-	 * @param mixed[] $values
-	 * @return mixed[]
+	 * @param array<mixed> $names
+	 * @param array<mixed> $values
+	 * @return array<mixed>
 	 */
 	private function fillParameters(array $names, array $values): array
 	{

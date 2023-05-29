@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace Pages\DB;
 
+use Base\Entity\ShopEntity;
 use Nette\Application\ApplicationException;
 use Pages\Pages;
 
 /**
  * @table
  * @index{"name":"type_params","unique":true,"columns":["type","params"]}
+ * @index{"name":"page_url_shop","unique":true,"columns":["url","fk_shop"]}
  */
-class Page extends \StORM\Entity implements IPage
+class Page extends ShopEntity implements IPage
 {
 	public const IMAGE_DIR = 'page';
 	
 	/**
 	 * Page url
-	 * @column{"type":"varchar","unique":true,"mutations":true,"nullable":true}
+	 * @column{"type":"varchar","mutations":true,"nullable":true}
 	 */
 	public ?string $url = null;
 	
@@ -63,7 +65,7 @@ class Page extends \StORM\Entity implements IPage
 	public ?string $canonicalUrl = null;
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $templateVars = [];
 	
@@ -88,7 +90,7 @@ class Page extends \StORM\Entity implements IPage
 	}
 	
 	/**
-	 * @return string[]|null[]
+	 * @return array<string>|array<null>
 	 */
 	public function getParsedParameters(): array
 	{
@@ -99,7 +101,7 @@ class Page extends \StORM\Entity implements IPage
 	}
 	
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	public function getPropertyParameters(): array
 	{
@@ -127,8 +129,8 @@ class Page extends \StORM\Entity implements IPage
 	}
 	
 	/**
-	 * @param mixed[] $vars
-	 * @param string[]|null $validateNames
+	 * @param array<mixed> $vars
+	 * @param array<string>|null $validateNames
 	 * @throws \Nette\Application\ApplicationException
 	 */
 	public function setTemplateVars(array $vars, ?array $validateNames): void

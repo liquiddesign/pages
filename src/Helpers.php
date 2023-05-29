@@ -6,6 +6,7 @@ namespace Pages;
 
 use Nette;
 use Nette\Application\UI\Presenter;
+use Nette\Utils\Strings;
 use StORM\Entity;
 
 final class Helpers
@@ -16,7 +17,7 @@ final class Helpers
 	private const MODULE_KEY = 'module';
 	
 	/**
-	 * @param mixed[] $params
+	 * @param array<mixed> $params
 	 */
 	public static function getFullPresenterName(array $params): string
 	{
@@ -24,7 +25,7 @@ final class Helpers
 	}
 	
 	/**
-	 * @param mixed[] $params
+	 * @param array<mixed> $params
 	 */
 	public static function getModuleName(array $params): string
 	{
@@ -32,7 +33,7 @@ final class Helpers
 	}
 	
 	/**
-	 * @param mixed[] $parameters
+	 * @param array<mixed> $parameters
 	 */
 	public static function serializeParameters(array $parameters): string
 	{
@@ -51,8 +52,8 @@ final class Helpers
 	
 	public static function getPresenterMethod(string $presenterClass, string $actionName): ?string
 	{
-		$actionMethod = Presenter::formatActionMethod(\ucfirst($actionName));
-		$renderMethod = Presenter::formatRenderMethod(\ucfirst($actionName));
+		$actionMethod = Presenter::formatActionMethod(Strings::firstUpper($actionName));
+		$renderMethod = Presenter::formatRenderMethod(Strings::firstUpper($actionName));
 		
 		return \method_exists($presenterClass, $actionMethod) ? $actionMethod : (\method_exists($presenterClass, $renderMethod) ? $renderMethod : null);
 	}

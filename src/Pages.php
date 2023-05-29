@@ -8,6 +8,7 @@ use Nette\Application\BadRequestException;
 use Nette\Application\InvalidPresenterException;
 use Nette\Application\IPresenterFactory;
 use Nette\Application\UI\Presenter;
+use Nette\Utils\Strings;
 use Pages\DB\IPage;
 use StORM\DIConnection;
 use StORM\Entity;
@@ -22,24 +23,24 @@ class Pages
 	private const MAPPING_MODULE_WILDCARD = '*';
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $prefetchTypes = [];
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $mutations = [];
 	
 	private ?string $defaultMutation = null;
 	
 	/**
-	 * @var \Pages\PageType[]
+	 * @var array<\Pages\PageType>
 	 */
 	private array $pageTypes = [];
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	private array $plinkMap = [];
 	
@@ -50,7 +51,7 @@ class Pages
 	private ?\StORM\DIConnection $connection;
 	
 	/**
-	 * @var callable[]
+	 * @var array<callable>
 	 */
 	private array $mappingMethods;
 	
@@ -59,17 +60,17 @@ class Pages
 	private bool $mappingThrow404;
 	
 	/**
-	 * @var string[][]
+	 * @var array<array<string>>
 	 */
 	private array $cachedParams;
 	
 	/**
-	 * @var mixed[]|null
+	 * @var array<mixed>|null
 	 */
 	private ?array $filterInCallback;
 	
 	/**
-	 * @var mixed[]|null
+	 * @var array<mixed>|null
 	 */
 	private ?array $filterOutCallback;
 	
@@ -90,7 +91,7 @@ class Pages
 	}
 	
 	/**
-	 * @param mixed[]|null $filterInCallback
+	 * @param array<mixed>|null $filterInCallback
 	 */
 	public function setFilterIn(?array $filterInCallback): void
 	{
@@ -98,7 +99,7 @@ class Pages
 	}
 	
 	/**
-	 * @return mixed[]|null
+	 * @return array<mixed>|null
 	 */
 	public function getFilterInCallback(): ?array
 	{
@@ -106,7 +107,7 @@ class Pages
 	}
 	
 	/**
-	 * @return mixed[]|null
+	 * @return array<mixed>|null
 	 */
 	public function getFilterOutCallback(): ?array
 	{
@@ -114,7 +115,7 @@ class Pages
 	}
 	
 	/**
-	 * @param mixed[]|null $filterOutCallback
+	 * @param array<mixed>|null $filterOutCallback
 	 */
 	public function setFilterOut(?array $filterOutCallback): void
 	{
@@ -122,7 +123,7 @@ class Pages
 	}
 	
 	/**
-	 * @param mixed[][] $callbacks
+	 * @param array<array<mixed>> $callbacks
 	 * @param string $class
 	 * @param bool $throw404
 	 */
@@ -134,7 +135,7 @@ class Pages
 	}
 	
 	/**
-	 * @param string[] $mutations
+	 * @param array<string> $mutations
 	 */
 	public function setMutations(array $mutations): void
 	{
@@ -147,7 +148,7 @@ class Pages
 	}
 	
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function getMutations(): array
 	{
@@ -164,7 +165,7 @@ class Pages
 	 * @param string $name
 	 * @param string $plink
 	 * @param string|null $defaultMask
-	 * @param string[] $templateVars
+	 * @param array<string> $templateVars
 	 */
 	public function addPageType(string $id, string $name, string $plink, ?string $defaultMask = null, bool $prefetch = false, array $templateVars = [], ?string $mutation = null): void
 	{
@@ -182,7 +183,7 @@ class Pages
 	}
 	
 	/**
-	 * @return \Pages\PageType[]
+	 * @return array<\Pages\PageType>
 	 */
 	public function getPageTypes(): array
 	{
@@ -190,7 +191,7 @@ class Pages
 	}
 	
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function getPrefetchTypes(): array
 	{
@@ -212,8 +213,8 @@ class Pages
 	}
 	
 	/**
-	 * @param mixed[] $params
-	 * @return mixed[]
+	 * @param array<mixed> $params
+	 * @return array<mixed>
 	 * @throws \Nette\Application\BadRequestException
 	 * @throws \StORM\Exception\NotFoundException
 	 */
@@ -231,7 +232,7 @@ class Pages
 				$repository = $this->connection->findRepository($class);
 				// test if params is actually page itself
 				$pageItself = $this->page && \get_class($this->page) === $class && $params[$name] === $this->page->getID();
-				$params[$name] = $pageItself ? $this->page : $this->callMapMethod(\strtolower($module), $repository, (string)$params[$name]);
+				$params[$name] = $pageItself ? $this->page : $this->callMapMethod(Strings::lower($module), $repository, (string) $params[$name]);
 			}
 		} catch (NotFoundException $exception) {
 			if ($this->mappingThrow404) {
@@ -251,8 +252,8 @@ class Pages
 	}
 	
 	/**
-	 * @param mixed[] $params
-	 * @return mixed[]
+	 * @param array<mixed> $params
+	 * @return array<mixed>
 	 */
 	public function unmapParameters(array $params): array
 	{
@@ -270,7 +271,7 @@ class Pages
 	/**
 	 * @param string $presenter
 	 * @param string $action
-	 * @return string[]
+	 * @return array<string>
 	 * @throws \Nette\Application\InvalidPresenterException
 	 * @throws \ReflectionException
 	 */
