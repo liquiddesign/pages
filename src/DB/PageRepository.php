@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pages\DB;
 
+use Base\DB\Shop;
 use Pages\Helpers;
 use Pages\Pages;
 use StORM\Collection;
@@ -44,8 +45,8 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		return $pages->isEmpty();
 	}
-	
-	public function getPageByUrl(string $url, ?string $lang, bool $includeOffline = true): ?IPage
+
+	public function getPageByUrl(string $url, ?string $lang, bool $includeOffline = true, Shop|null $selectedShop = null, bool $filterOnlySelectedShop = false): ?IPage
 	{
 		$suffix = '';
 		
@@ -54,6 +55,14 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		$collection = $this->many($lang)->where($lang ? "url$suffix" : 'url', $url)->setTake(1);
+
+		if ($selectedShop) {
+			if ($filterOnlySelectedShop) {
+				$collection->where('this.fk_shop', $selectedShop->getPK());
+			} else {
+				$collection->where('this.fk_shop = :shop OR this.fk_shop IS NULL', ['shop' => $selectedShop->getPK()]);
+			}
+		}
 		
 		if (!$includeOffline) {
 			$collection->where('isOffline', false);

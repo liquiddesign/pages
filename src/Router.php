@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pages;
 
+use Base\ShopsConfig;
 use Nette;
 use Nette\Application\Helpers;
 use Nette\Application\UI\Presenter;
@@ -14,12 +15,6 @@ use StORM\Repository;
 
 class Router implements \Nette\Routing\Router
 {
-	private string $mutationParameter;
-	
-	private \Pages\Pages $pages;
-	
-	private \Pages\DB\IPageRepository $pageRepository;
-	
 	/**
 	 * @var array<\Pages\DB\IPage>|array<null>
 	 */
@@ -30,11 +25,12 @@ class Router implements \Nette\Routing\Router
 	 */
 	private array $inCache = [];
 	
-	public function __construct(Pages $pages, IPageRepository $pageRepository, string $mutationParameter = 'lang')
-	{
-		$this->pages = $pages;
-		$this->pageRepository = $pageRepository;
-		$this->mutationParameter = $mutationParameter;
+	public function __construct(
+		private readonly Pages $pages,
+		private readonly IPageRepository $pageRepository,
+		private readonly ShopsConfig $shopsConfig,
+		private readonly string $mutationParameter = 'lang'
+	) {
 	}
 	
 	/**
@@ -74,7 +70,7 @@ class Router implements \Nette\Routing\Router
 		
 		// try get by url
 		$cacheIndex = $lang . $pageUrl;
-		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang, false);
+		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang, false, $this->shopsConfig->getSelectedShop());
 		$this->inCache[$cacheIndex] = $page;
 		
 		if ($page === null || !$page->isAvailable($lang)) {

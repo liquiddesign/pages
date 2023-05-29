@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Pages\DB;
 
+use Base\DB\Shop;
 use StORM\DIConnection;
 
 interface IPageRepository
 {
 	public function getConnection(): DIConnection;
 	
-	public function getPageByUrl(string $url, ?string $lang, bool $includeOffline = true): ?IPage;
+	public function getPageByUrl(string $url, ?string $lang, bool $includeOffline = true, Shop|null $selectedShop = null, bool $filterOnlySelectedShop = false): ?IPage;
 	
 	/**
 	 * @param string $pageTypeId
