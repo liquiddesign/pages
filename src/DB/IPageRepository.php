@@ -20,7 +20,15 @@ interface IPageRepository
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
 	 */
-	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage;
+	public function getPageByTypeAndParams(
+		string $pageTypeId,
+		?string $lang,
+		array $parameters = [],
+		bool $includeOffline = true,
+		bool $perfectMatch = true,
+		Shop|null $selectedShop = null,
+		bool $filterOnlySelectedShop = false,
+	): ?IPage;
 	
-	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null): bool;
+	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null, Shop|null $selectedShop = null): bool;
 }

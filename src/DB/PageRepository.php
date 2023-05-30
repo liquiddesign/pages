@@ -28,7 +28,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$this->pages = $pages;
 	}
 	
-	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null): bool
+	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null, Shop|null $selectedShop = null): bool
 	{
 		$suffix = '';
 		
@@ -41,6 +41,10 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		
 		if ($notIncludePagePK !== null) {
 			$pages->whereNot('this.uuid', $notIncludePagePK);
+		}
+
+		if ($selectedShop) {
+			$pages->where('this.fk_shop', $selectedShop->getPK());
 		}
 		
 		return $pages->isEmpty();
@@ -81,8 +85,15 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param bool $includeOffline
 	 * @param bool $perfectMatch
 	 */
-	public function getPageByTypeAndParams(string $pageTypeId, ?string $lang, array $parameters = [], bool $includeOffline = true, bool $perfectMatch = true): ?IPage
-	{
+	public function getPageByTypeAndParams(
+		string $pageTypeId,
+		?string $lang,
+		array $parameters = [],
+		bool $includeOffline = true,
+		bool $perfectMatch = true,
+		Shop|null $selectedShop = null,
+		bool $filterOnlySelectedShop = false,
+	): ?IPage {
 		$pageType = $this->pages->getPageType($pageTypeId);
 		
 		$relationWhere = $this->mapProperties($parameters, true, true);
@@ -93,7 +104,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		$page = null;
 		
 		if ($optionalParameters) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters + $optionalParameters, $relationWhere, $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters + $optionalParameters, $relationWhere, $includeOffline, $selectedShop, $filterOnlySelectedShop);
 			
 			if ($perfectMatch) {
 				return $page;
@@ -101,7 +112,7 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 		}
 		
 		if (!$page) {
-			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters, $relationWhere, $includeOffline);
+			$page = $this->getPageByTypeLangQuery($type, $lang, $requiredParameters, $relationWhere, $includeOffline, $selectedShop, $filterOnlySelectedShop);
 		}
 		
 		return $page;
@@ -229,8 +240,15 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 	 * @param array<mixed> $relationWhere
 	 * @param bool $includeOffline
 	 */
-	private function getPageByTypeLangQuery(string $type, ?string $lang, array $params, array $relationWhere, bool $includeOffline = true): ?IPage
-	{
+	private function getPageByTypeLangQuery(
+		string $type,
+		?string $lang,
+		array $params,
+		array $relationWhere,
+		bool $includeOffline = true,
+		Shop|null $selectedShop = null,
+		bool $filterOnlySelectedShop = false,
+	): ?IPage {
 		$httpQuery = Helpers::serializeParameters($params);
 		
 		$pages = $this->many($lang)->where('type', $type);
@@ -253,6 +271,14 @@ class PageRepository extends \StORM\Repository implements IPageRepository
 				->orderBy(["(LENGTH(params) - LENGTH(REPLACE(params,'&','')))" => 'DESC']);
 		} else {
 			$pages->where('params', $httpQuery);
+		}
+
+		if ($selectedShop) {
+			if ($filterOnlySelectedShop) {
+				$pages->where('this.fk_shop', $selectedShop->getPK());
+			} else {
+				$pages->where('this.fk_shop = :shop OR this.fk_shop IS NULL', ['shop' => $selectedShop->getPK()]);
+			}
 		}
 		
 		return \Nette\Utils\Helpers::falseToNull($pages->first());

@@ -11,7 +11,7 @@ use Pages\Pages;
 /**
  * @table
  * @index{"name":"type_params","unique":true,"columns":["type","params","fk_shop"]}
- * @index{"name":"page_url_shop","unique":true,"columns":["url_cs","fk_shop"]}
+ * @index{"name":"page_url_shop","unique":true,"columns":["url","fk_shop"]}
  */
 class Page extends ShopEntity implements IPage
 {
