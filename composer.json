@@ -15,7 +15,7 @@
 		"nette/di":"~3.1",
 		"tracy/tracy":"^2.10",
 		"liquiddesign/storm": "~1.0",
-		"liquiddesign/base": "v2.x-dev",
+		"liquiddesign/base": "~2.0.0-beta.1",
 		"ext-pdo": "*"
 	},
 	"require-dev": 
