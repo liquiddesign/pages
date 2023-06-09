@@ -128,10 +128,13 @@ class Router implements \Nette\Routing\Router
 		$cacheIndex = $pageType->getID() . $serializedParams . ($serializedParams ? '&' : '');
 		
 		if ($this->pageRepository instanceof Repository) {
-			$this->outCache ??= $this->pageRepository->many()
+			$outCacheCollection = $this->pageRepository->many()
 				->where('type', $this->pages->getPrefetchTypes())
-				->setIndex('CONCAT(this.type,this.params)')
-				->toArray();
+				->setIndex('CONCAT(this.type,this.params)');
+
+			$this->shopsConfig->filterShopsInShopEntityCollection($outCacheCollection);
+
+			$this->outCache ??= $outCacheCollection->toArray();
 		} else {
 			$this->outCache = [];
 		}
@@ -141,7 +144,7 @@ class Router implements \Nette\Routing\Router
 				return null;
 			}
 			
-			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false);
+			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop());
 		}
 		
 		$page = $this->outCache[$cacheIndex];
