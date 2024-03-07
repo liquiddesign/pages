@@ -1,42 +1,50 @@
 {
-	"name": "liquiddesign/pages",
-	"description": "℗ Nette extension obsahující databázový router, přesměrování (na StORMu) a přidružené funkce.",
-	"license": "MIT",
-	"autoload": {
-		"psr-4": {"Pages\\": "src/"}
-	},
-	"require" :
-	{
-		"php":">=8.2",
-		"nette/application":"~3.1",
-		"nette/caching":"~3.2",
-		"nette/routing":"~3.0",
-		"latte/latte":"~3.0",
-		"nette/di":"~3.1",
-		"tracy/tracy":"^2.10",
-		"liquiddesign/storm": "~1.0",
-		"liquiddesign/base": "~2.0.0",
-		"ext-pdo": "*"
-	},
-	"require-dev": 
-	{
-		"nette/tester":"^2.0",
-		"composer/composer": "^2.0",
-		"liquiddesign/codestyle": "^3.0",
-		"phpstan/phpstan": "^1.0"
-	},
-	"scripts": {
-		"phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
-		"phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
-		"phpcsfix": "phpcbf --standard=ruleset.xml src",
-		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
-		"aux-update-pages-templates": "Pages\\Scripts::createTemplates",
-		"pages-update-templates": "@aux-update-templates Pages\\Tests\\Bootstrap",
-		"check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php"
-	},
-	"config": {
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
-	}
+    "name": "liquiddesign/pages",
+    "description": "℗ Nette extension obsahující databázový router, přesměrování (na StORMu) a přidružené funkce.",
+    "license": "MIT",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Pages\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.2",
+        "nette/application": "~3.1",
+        "nette/caching": "~3.2",
+        "nette/routing": "~3.0",
+        "latte/latte": "~3.0",
+        "nette/di": "~3.1",
+        "tracy/tracy": "^2.10",
+        "liquiddesign/storm": "~2.0",
+        "liquiddesign/base": "~2.0",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "nette/tester": "^2.0",
+        "composer/composer": "^2.0",
+        "liquiddesign/codestyle": "^3.0",
+        "phpstan/phpstan": "^1.0"
+    },
+    "scripts": {
+        "phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
+        "phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
+        "phpcsfix": "phpcbf --standard=ruleset.xml src",
+        "tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
+        "aux-update-pages-templates": "Pages\\Scripts::createTemplates",
+        "pages-update-templates": "@aux-update-templates Pages\\Tests\\Bootstrap",
+        "check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php",
+        "changelog": "conventional-changelog",
+        "release": "@changelog --commit",
+        "release:patch": "@changelog --patch --commit",
+        "release:minor": "@changelog --minor --commit",
+        "release:major": "@changelog --major --commit"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "version": "2.0.1"
 }
