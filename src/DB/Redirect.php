@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Pages\DB;
 
+use Base\Entity\ShopEntity;
+
 /**
  * @table
- * @index{"name":"redirect_url","unique":true,"columns":["fromUrl","fromMutation"]}
+ * @index{"name":"redirect_url","unique":true,"columns":["fromUrl","fromMutation", "fk_shop"]}
  */
-class Redirect extends \StORM\Entity
+class Redirect extends ShopEntity
 {
 	/**
 	 * @column

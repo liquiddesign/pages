@@ -45,11 +45,11 @@ class Redirector
 		if (!Arrays::contains($this->pages->getMutations(), $lang) || $lang === $this->pages->getDefaultMutation()) {
 			$lang = $this->pages->getDefaultMutation();
 		}
-		
+
 		if ($redirect = $this->redirectRepository->getRedirect($pageUrl, $lang)) {
-			// @phpstan-ignore-next-line
-			$application->onShutdown($application);
+			Arrays::invoke($application->onShutdown, $application);
 			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation()), 301);
+
 			exit;
 		}
 		
