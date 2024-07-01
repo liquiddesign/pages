@@ -12,6 +12,7 @@ use StORM\Entity;
 final class Helpers
 {
 	use Nette\StaticClass;
+
 	
 	public const QUERY_SEPARATOR = '&';
 	private const MODULE_KEY = 'module';

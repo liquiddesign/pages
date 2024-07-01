@@ -9,6 +9,7 @@ use Pages\DB\IPageRepository;
 class PagesTracy implements \Tracy\IBarPanel
 {
 	use \Nette\SmartObject;
+
 	
 	/**
 	 * Pages instance
