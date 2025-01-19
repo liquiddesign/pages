@@ -8,6 +8,7 @@ use Base\ShopsConfig;
 use Nette;
 use Nette\Application\Helpers;
 use Nette\Application\UI\Presenter;
+use Nette\Caching\Cache;
 use Nette\Utils\Arrays;
 use Nette\Utils\Strings;
 use Pages\DB\IPageRepository;
@@ -15,6 +16,8 @@ use StORM\Repository;
 
 class Router implements \Nette\Routing\Router
 {
+	public const CACHE_INDEX = self::class . '::pages';
+
 	/**
 	 * @var array<\Pages\DB\IPage>|array<null>
 	 */
@@ -24,13 +27,17 @@ class Router implements \Nette\Routing\Router
 	 * @var array<\Pages\DB\IPage>|array<null>
 	 */
 	private array $inCache = [];
+
+	private Nette\Caching\Cache $cache;
 	
 	public function __construct(
 		private readonly Pages $pages,
 		private readonly IPageRepository $pageRepository,
 		private readonly ShopsConfig $shopsConfig,
-		private readonly string $mutationParameter = 'lang'
+		Nette\Caching\Storage $storage,
+		private readonly string $mutationParameter = 'lang',
 	) {
+		$this->cache = new Nette\Caching\Cache($storage);
 	}
 	
 	/**
@@ -143,8 +150,15 @@ class Router implements \Nette\Routing\Router
 			if (!$serializedParams && Arrays::contains($this->pages->getPrefetchTypes(), $pageType->getID())) {
 				return null;
 			}
-			
-			$this->outCache[$cacheIndex] = $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop());
+
+			$this->outCache[$cacheIndex] = $this->cache->load($cacheIndex, function (&$dependencies) use ($pageType, $lang, $params) {
+				$dependencies = [
+					Cache::Tags => [self::CACHE_INDEX],
+					Cache::Expire => '1 day',
+				];
+
+				return $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop());
+			});
 		}
 		
 		$page = $this->outCache[$cacheIndex];
@@ -152,6 +166,8 @@ class Router implements \Nette\Routing\Router
 		if (!$page || !$page->isAvailable($lang)) {
 			return null;
 		}
+
+		$page->setParent($this->pageRepository);
 		
 		$params = \array_diff_key($params, $page->getParsedParameters() + $page->getPropertyParameters());
 		$pageUrl = $page->getUrl($lang);

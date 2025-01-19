@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Pages\DB;
 
 use Base\DB\Shop;
+use Nette\Caching\Cache;
+use Nette\Caching\Storage;
 use Pages\Helpers;
 use Pages\Pages;
 use StORM\Collection;
@@ -20,12 +22,15 @@ use StORM\SchemaManager;
 class PageRepository extends \StORM\Repository implements IPageRepository
 {
 	protected Pages $pages;
+
+	private Cache $cache;
 	
-	public function __construct(DIConnection $connection, SchemaManager $schemaManager, Pages $pages)
+	public function __construct(DIConnection $connection, SchemaManager $schemaManager, Pages $pages, Storage $storage)
 	{
 		parent::__construct($connection, $schemaManager);
 		
 		$this->pages = $pages;
+		$this->cache = new Cache($storage);
 	}
 	
 	public function isUrlAvailable(string $url, ?string $lang, ?string $notIncludePagePK = null, Shop|null $selectedShop = null): bool
