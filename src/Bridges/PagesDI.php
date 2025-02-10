@@ -49,6 +49,9 @@ class PagesDI extends \Nette\DI\CompilerExtension
 				'path' => Expect::array(),
 				'templates' => Expect::array(),
 			]),
+			'cache' => Expect::structure([
+				'enabled' => Expect::bool(false),
+			]),
 		]);
 	}
 	
@@ -72,7 +75,11 @@ class PagesDI extends \Nette\DI\CompilerExtension
 		$pages->addSetup('setFilterIn', [$config['filterIn']]);
 		$pages->addSetup('setFilterOut', [$config['filterOut']]);
 		
-		$def = $builder->addDefinition($this->prefix('router'), new ServiceDefinition())->setType(Router::class)->setArgument('mutationParameter', $mutationParameter)->setAutowired(false);
+		$def = $builder->addDefinition($this->prefix('router'), new ServiceDefinition())->setType(Router::class)
+			->setArgument('mutationParameter', $mutationParameter)
+			->setArgument('cacheEnabled', $config['cache']->enabled)
+			->setAutowired(false);
+
 		$builder->addDefinition($this->prefix('pageRepository'), new ServiceDefinition())->setType(PageRepository::class);
 		$builder->addDefinition($this->prefix('redirectRepository'), new ServiceDefinition())->setType(RedirectRepository::class);
 		$pageTemplateRepository = $builder->addDefinition($this->prefix('pageTemplateRepository'), new ServiceDefinition())->setType(PageTemplateRepository::class);

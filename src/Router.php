@@ -36,6 +36,7 @@ class Router implements \Nette\Routing\Router
 		private readonly ShopsConfig $shopsConfig,
 		Nette\Caching\Storage $storage,
 		private readonly string $mutationParameter = 'lang',
+		private readonly bool $cacheEnabled = false,
 	) {
 		$this->cache = new Nette\Caching\Cache($storage);
 	}
@@ -151,14 +152,16 @@ class Router implements \Nette\Routing\Router
 				return null;
 			}
 
-			$this->outCache[$cacheIndex] = $this->cache->load($cacheIndex, function (&$dependencies) use ($pageType, $lang, $params) {
+			$getPageCallback = function (&$dependencies = null) use ($pageType, $lang, $params) {
 				$dependencies = [
 					Cache::Tags => [self::CACHE_INDEX],
 					Cache::Expire => '1 day',
 				];
 
 				return $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop());
-			});
+			};
+
+			$this->outCache[$cacheIndex] = $this->cacheEnabled ? $this->cache->load($cacheIndex, $getPageCallback) : $getPageCallback();
 		}
 		
 		$page = $this->outCache[$cacheIndex];
