@@ -158,7 +158,7 @@ class Router implements \Nette\Routing\Router
 					Cache::Expire => '1 day',
 				];
 
-				return $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop());
+				return $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop()) ?: false;
 			};
 
 			$this->outCache[$cacheIndex] = $this->cacheEnabled ? $this->cache->load($cacheIndex, $getPageCallback) : $getPageCallback();
@@ -166,7 +166,7 @@ class Router implements \Nette\Routing\Router
 		
 		$page = $this->outCache[$cacheIndex];
 		
-		if (!$page || !$page->isAvailable($lang)) {
+		if ($page === null || $page === false || !$page->isAvailable($lang)) {
 			return null;
 		}
 
