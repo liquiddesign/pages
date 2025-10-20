@@ -37,7 +37,8 @@ class PagesTracy implements \Tracy\IBarPanel
 	 */
 	public function getTab(): string
 	{
-		return self::capture(function (): void { // @codingStandardsIgnoreLine
+		return self::capture(function (): void {
+ // @codingStandardsIgnoreLine
 			require __DIR__ . '/templates/Pages.panel.tab.phtml';
 			
 			return;
@@ -50,7 +51,8 @@ class PagesTracy implements \Tracy\IBarPanel
 	 */
 	public function getPanel(): string
 	{
-		return self::capture(function (): void {  // @codingStandardsIgnoreLine
+		return self::capture(function (): void {
+ // @codingStandardsIgnoreLine
 			require __DIR__ . '/templates/Pages.panel.phtml';
 			
 			return;
