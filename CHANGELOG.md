@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.6](https://github.com/liquiddesign/pages/compare/v2.0.5...v2.0.6) (2025-10-20)
+
+### Bug Fixes
+
+* Handle null page in Router.php ([88a75f](https://github.com/liquiddesign/pages/commit/88a75f7891febf26e6e610810aff7e138668958f))
+
+
+---
+
 ## [2.0.5](https://github.com/liquiddesign/pages/compare/v2.0.4...v2.0.5) (2025-02-13)
 
 ### Features
