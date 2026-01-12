@@ -4,6 +4,11 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.7](https://github.com/liquiddesign/pages/compare/v2.0.6...v2.0.7) (2026-01-12)
+
+
+---
+
 ## [2.0.6](https://github.com/liquiddesign/pages/compare/v2.0.5...v2.0.6) (2025-10-20)
 
 ### Bug Fixes
