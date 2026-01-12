@@ -113,7 +113,7 @@ class PagesDI extends \Nette\DI\CompilerExtension
 			
 			[$presenter, $action] = Helpers::splitName($pageType['plink']);
 			
-			$options = ['presenter' => $presenter, 'action' => $action, null => [
+			$options = ['presenter' => $presenter, 'action' => $action, '' => [
 				Route::FILTER_OUT => [$pages, 'unmapParameters'],
 				Route::FILTER_IN => [$pages, 'mapParameters'],
 			]];
