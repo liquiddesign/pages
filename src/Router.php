@@ -77,8 +77,9 @@ class Router implements \Nette\Routing\Router
 		}
 		
 		// try get by url
-		$cacheIndex = $lang . $pageUrl;
-		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang, false, $this->shopsConfig->getSelectedShop());
+		$selectedShop = $this->shopsConfig->getSelectedShop();
+		$cacheIndex = ($selectedShop?->getPK() ?? '') . '/' . $lang . '/' . $pageUrl;
+		$page = $this->inCache[$cacheIndex] ?? $this->pageRepository->getPageByUrl($pageUrl, $lang, false, $selectedShop);
 		$this->inCache[$cacheIndex] = $page;
 		
 		if ($page === null || !$page->isAvailable($lang)) {
@@ -161,7 +162,9 @@ class Router implements \Nette\Routing\Router
 				return $this->pageRepository->getPageByTypeAndParams($pageType->getID(), $lang, $params, false, false, $this->shopsConfig->getSelectedShop()) ?: false;
 			};
 
-			$this->outCache[$cacheIndex] = $this->cacheEnabled ? $this->cache->load($cacheIndex, $getPageCallback) : $getPageCallback();
+			$this->outCache[$cacheIndex] = $this->cacheEnabled
+				? $this->cache->load($this->getPersistentCacheKey($cacheIndex, $lang), $getPageCallback)
+				: $getPageCallback();
 		}
 		
 		$page = $this->outCache[$cacheIndex];
@@ -190,5 +193,20 @@ class Router implements \Nette\Routing\Router
 		$url->setFragment($refUrl->getFragment());
 		
 		return (string) $url;
+	}
+
+	/**
+	 * Klíč persistentní cache pro jednu stránku.
+	 *
+	 * `$cacheIndex` sám (`typ` + serializované parametry) je index **in-request** prefetch mapy
+	 * `$outCache`, která se plní už shop-filtrovanou kolekcí. Klíč Nette cache je ale sdílený napříč
+	 * celou instalací, a na multi-shop instalaci (jedna aplikace, víc domén, jeden `tempDir`) je
+	 * výsledek `getPageByTypeAndParams()` závislý **jak na vybraném shopu, tak na mutaci** — každá
+	 * mutace má vlastní `url_<mutace>` a každý shop vlastní sadu stránek. Bez obojího v klíči určil
+	 * URL pro všechny shopy ten, kdo cache nahřál první, a to až do expirace (1 den).
+	 */
+	private function getPersistentCacheKey(string $cacheIndex, ?string $lang): string
+	{
+		return self::CACHE_INDEX . '/' . ($this->shopsConfig->getSelectedShop()?->getPK() ?? '') . '/' . ($lang ?? '') . '/' . $cacheIndex;
 	}
 }
