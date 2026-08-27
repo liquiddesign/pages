@@ -4,6 +4,25 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.10](https://github.com/liquiddesign/pages/compare/v2.0.9...v2.0.10) (2026-08-27)
+
+### Bug Fixes
+
+* Resolve the request mutation from the connection when the URL carries no language prefix
+
+  `Router::match()` fell back to the application's default mutation whenever the URL had no language
+  prefix, so it looked the page up by `url_<default>`. Link building in `constructUrl()` meanwhile uses
+  the active mutation and emits `url_<active>`. On a multi-shop installation that serves each language
+  on its own domain — where a prefix never appears — that asymmetry makes every non-default language
+  version answer 404 on links the application itself generated. The lookup now uses the connection's
+  active mutation (the application sets it from the domain before routing) and falls back to the
+  default when the repository is not StORM or the mutation is not configured, so single-language
+  installations behave exactly as before. Stripping the prefix is now tied to the prefix actually
+  being present rather than to the resolved language differing from the default.
+
+
+---
+
 ## [2.0.9](https://github.com/liquiddesign/pages/compare/v2.0.7...v2.0.9) (2026-08-27)
 
 ### Bug Fixes

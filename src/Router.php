@@ -56,11 +56,16 @@ class Router implements \Nette\Routing\Router
 		
 		// parsing url
 		$pageUrl = (string) Strings::substring($url->getPath(), Strings::length($url->getBasePath()));
-		$lang = \strtok($pageUrl, '/');
-		
-		if (!Arrays::contains($mutations, $lang) || $lang === $defaultMutation) {
-			$lang = $defaultMutation;
-		}
+		$prefixLang = \strtok($pageUrl, '/');
+		$hasLangPrefix = $prefixLang !== false
+			&& $prefixLang !== $defaultMutation
+			&& Arrays::contains($mutations, $prefixLang);
+
+		// Bez jazykového prefixu v URL rozhoduje aktivní mutace spojení, ne výchozí mutace aplikace.
+		// Multi-shop instalace obsluhuje každou jazykovou verzi na vlastní doméně, takže tam prefix
+		// nikdy není a napevno použitá výchozí mutace by hledala `url_<default>` — zatímco odkazy se
+		// staví z `url_<aktivní>`. Ta asymetrie znamená 404 na každou nedefaultní jazykovou verzi.
+		$lang = $hasLangPrefix ? $prefixLang : $this->getRequestMutation($mutations, $defaultMutation);
 		
 		// filter IN
 		if ($filterInCallback = $this->pages->getFilterInCallback()) {
@@ -71,9 +76,9 @@ class Router implements \Nette\Routing\Router
 			}
 		}
 		
-		// strip lang prefix
-		if ($lang !== $defaultMutation) {
-			$pageUrl = (string) Strings::substring($pageUrl, Strings::length($lang) + 1);
+		// strip lang prefix — jen když v URL opravdu je; mutace odvozená ze spojení žádný neubírá
+		if ($hasLangPrefix) {
+			$pageUrl = (string) Strings::substring($pageUrl, Strings::length((string) $prefixLang) + 1);
 		}
 		
 		// try get by url
@@ -208,5 +213,24 @@ class Router implements \Nette\Routing\Router
 	private function getPersistentCacheKey(string $cacheIndex, ?string $lang): string
 	{
 		return self::CACHE_INDEX . '/' . ($this->shopsConfig->getSelectedShop()?->getPK() ?? '') . '/' . ($lang ?? '') . '/' . $cacheIndex;
+	}
+
+	/**
+	 * Mutace pro požadavek bez jazykového prefixu v URL.
+	 *
+	 * Zdrojem je aktivní mutace StORM spojení — tu nastavuje aplikace podle domény/shopu ještě před
+	 * routováním. Když repozitář není StORM nebo je mutace mimo nakonfigurované `mutations`, drží se
+	 * výchozí mutace, takže jednojazyčné instalace se chovají přesně jako dřív.
+	 * @param array<string> $mutations
+	 */
+	private function getRequestMutation(array $mutations, ?string $defaultMutation): ?string
+	{
+		if (!$this->pageRepository instanceof Repository) {
+			return $defaultMutation;
+		}
+
+		$mutation = $this->pageRepository->getConnection()->getMutation();
+
+		return $mutation !== null && Arrays::contains($mutations, $mutation) ? $mutation : $defaultMutation;
 	}
 }
