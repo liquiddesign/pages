@@ -126,7 +126,13 @@ class Router implements \Nette\Routing\Router
 		$defaultLang = $this->pages->getDefaultMutation();
 		$plink = $params[Presenter::PRESENTER_KEY] . ':' . $params[Presenter::ACTION_KEY];
 		// if defaultLang not set ignore lang
-		$lang = $defaultLang ? ($params[$this->mutationParameter] ?? $defaultLang) : null;
+		// Bez explicitního `lang` v parametrech se jazyk odkazu odvodí ze stejného zdroje jako v
+		// `match()`, ne z výchozí mutace aplikace. Jinak by odkaz vygenerovaný na doméně jiné jazykové
+		// verze dostal jazyk `default`, tedy jiný než ten, který si `match()` z požadavku odvodí — a
+		// tím pádem i prefix `/<default>/`, který na té doméně nic neresolvuje.
+		$lang = $defaultLang
+			? ($params[$this->mutationParameter] ?? $this->getRequestMutation($this->pages->getMutations(), $defaultLang))
+			: null;
 		
 		$pageType = $this->pages->getTypeByPlink($plink);
 		

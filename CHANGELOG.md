@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.12](https://github.com/liquiddesign/pages/compare/v2.0.11...v2.0.12) (2026-08-27)
+
+### Bug Fixes
+
+* Derive the link language from the request when no `lang` parameter is given
+
+  `constructUrl()` fell back to the application default language whenever a link carried no explicit
+  `lang` parameter. Combined with 2.0.10/2.0.11 that produced a `/<default>/` prefix on links generated
+  on a domain serving another language — a path that resolves to nothing there. The fallback now uses
+  the same request-derived mutation as `match()`, so all three places agree on the language of a
+  prefix-less request.
+
+
+---
+
 ## [2.0.11](https://github.com/liquiddesign/pages/compare/v2.0.10...v2.0.11) (2026-08-27)
 
 ### Bug Fixes
