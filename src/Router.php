@@ -182,7 +182,11 @@ class Router implements \Nette\Routing\Router
 		
 		$params = \array_diff_key($params, $page->getParsedParameters() + $page->getPropertyParameters());
 		$pageUrl = $page->getUrl($lang);
-		$hasLangPrefix = $lang && $lang !== $defaultLang;
+		// Prefix se přidává jen tehdy, když se jazyk odkazu liší od toho, který si `match()` odvodí
+		// z požadavku sám. Na multi-shop instalaci, kde každý jazyk bydlí na vlastní doméně, je
+		// aktivní mutace spojení už ta správná, takže prefix je zbytečný — a kdyby se přidal,
+		// canonicalizace by každý odkaz přesměrovala na `/<mutace>/…`.
+		$hasLangPrefix = $lang && $lang !== $this->getRequestMutation($this->pages->getMutations(), $defaultLang);
 		$path = $refUrl->getPath() . ($hasLangPrefix ? ($pageUrl ? "$lang/" : $lang) : '') . $pageUrl;
 		
 		// filter OUT

@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.11](https://github.com/liquiddesign/pages/compare/v2.0.10...v2.0.11) (2026-08-27)
+
+### Bug Fixes
+
+* Omit the language prefix when the request already implies that language
+
+  `constructUrl()` added the `/<lang>/` prefix to every link whose language differed from the
+  application default, which after 2.0.10 made canonicalisation redirect every link on a
+  domain-per-language installation to a prefixed URL it did not need. The prefix is now added only when
+  the link's language differs from the one `match()` derives from the request on its own, so the two
+  directions stay symmetric: no prefix is emitted where none is required to resolve the page.
+
+
+---
+
 ## [2.0.10](https://github.com/liquiddesign/pages/compare/v2.0.9...v2.0.10) (2026-08-27)
 
 ### Bug Fixes
