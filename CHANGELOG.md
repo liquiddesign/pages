@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.13](https://github.com/liquiddesign/pages/compare/v2.0.12...v2.0.13) (2026-10-05)
+
+### Bug Fixes
+
+* Redirect to an absolute target URL as it is
+
+  `Redirector` always appended `toUrl` to the path of the current host, so a redirect to another
+  domain or subdomain (`https://np.abel.cz`) ended up as `https://www.abel.cz/https://np.abel.cz`.
+  A target starting with `http://` or `https://` is now sent unchanged; relative targets keep the
+  previous behaviour. `Redirector::isAbsoluteUrl()` tells the two apart.
+
+
+---
+
 ## [2.0.12](https://github.com/liquiddesign/pages/compare/v2.0.11...v2.0.12) (2026-08-27)
 
 ### Bug Fixes

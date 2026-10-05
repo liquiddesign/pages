@@ -56,8 +56,23 @@ class Redirector
 		return;
 	}
 	
+	/**
+	 * Only `http://` and `https://` count as absolute; anything else (`javascript:`, `//host`, a path)
+	 * stays a path on the current domain, as before.
+	 */
+	public static function isAbsoluteUrl(string $url): bool
+	{
+		return Strings::match($url, '~^https?://[^/\s]~i') !== null;
+	}
+	
 	private function generateRedirectUrl(Redirect $redirect, \Nette\Http\IRequest $request, ?string $defaultMutation): string
 	{
+		// An absolute target (another domain or subdomain) is sent as it is. Gluing it to the path of the
+		// current host produced e.g. `https://www.abel.cz/https://np.abel.cz`.
+		if (self::isAbsoluteUrl($redirect->toUrl)) {
+			return $redirect->toUrl;
+		}
+		
 		$toMutation = $redirect->toMutation ?: $redirect->fromMutation;
 		$toUrl = $redirect->toUrl === '/' ? '' : $redirect->toUrl;
 		$url = $request->getUrl();
