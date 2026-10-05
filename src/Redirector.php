@@ -35,20 +35,27 @@ class Redirector
 		
 		$pageUrl = (string) Strings::substring($url->getPath(), Strings::length($url->getBasePath()));
 		$lang = \strtok($pageUrl, '/');
-		
-		if ($url->getQuery()) {
-			$pageUrl .= '?' . $url->getQuery();
-		}
-		
 		$pageUrl = Strings::lower($pageUrl);
+		$query = $url->getQuery();
 		
 		if (!Arrays::contains($this->pages->getMutations(), $lang) || $lang === $this->pages->getDefaultMutation()) {
 			$lang = $this->pages->getDefaultMutation();
 		}
+		
+		// A redirect whose source carries the query string (`list?page=4`) wins, as before.
+		$redirect = $query !== '' ? $this->redirectRepository->getRedirect($pageUrl . '?' . Strings::lower($query), $lang) : null;
+		$passedQuery = [];
+		
+		// Parameters a link picks up on the way (`utm_*`, `fbclid`, `gclid`) must not bypass a redirect set
+		// for the path. They were not part of the match, so they travel on to the target.
+		if (!$redirect) {
+			$redirect = $this->redirectRepository->getRedirect($pageUrl, $lang);
+			$passedQuery = $this->httpRequest->getQuery();
+		}
 
-		if ($redirect = $this->redirectRepository->getRedirect($pageUrl, $lang)) {
+		if ($redirect) {
 			Arrays::invoke($application->onShutdown, $application);
-			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation()), 301);
+			$this->httpResponse->redirect($this->generateRedirectUrl($redirect, $this->httpRequest, $this->pages->getDefaultMutation(), $passedQuery), 301);
 
 			exit;
 		}
@@ -65,12 +72,22 @@ class Redirector
 		return Strings::match($url, '~^https?://[^/\s]~i') !== null;
 	}
 	
-	private function generateRedirectUrl(Redirect $redirect, \Nette\Http\IRequest $request, ?string $defaultMutation): string
+	/**
+	 * @param array<mixed> $query parameters of the request passed on to the target
+	 */
+	private function generateRedirectUrl(Redirect $redirect, \Nette\Http\IRequest $request, ?string $defaultMutation, array $query = []): string
 	{
 		// An absolute target (another domain or subdomain) is sent as it is. Gluing it to the path of the
 		// current host produced e.g. `https://www.abel.cz/https://np.abel.cz`.
 		if (self::isAbsoluteUrl($redirect->toUrl)) {
-			return $redirect->toUrl;
+			if (!$query) {
+				return $redirect->toUrl;
+			}
+			
+			$redirectUrl = new \Nette\Http\Url($redirect->toUrl);
+			$redirectUrl->appendQuery($query);
+			
+			return (string) $redirectUrl;
 		}
 		
 		$toMutation = $redirect->toMutation ?: $redirect->fromMutation;
@@ -82,9 +99,8 @@ class Redirector
 		$redirectUrl->setScheme($url->getScheme());
 		$redirectUrl->setHost($url->getAuthority());
 		$redirectUrl->setPath($path);
-		$redirectUrl->appendQuery($request->getQuery());
 		$redirectUrl->setFragment($url->getFragment());
-		$redirectUrl->setQuery('');
+		$redirectUrl->setQuery($query);
 		
 		return (string) $redirectUrl;
 	}

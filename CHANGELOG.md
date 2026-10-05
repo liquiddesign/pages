@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.14](https://github.com/liquiddesign/pages/compare/v2.0.13...v2.0.14) (2026-10-05)
+
+### Bug Fixes
+
+* Redirect a path even when the request carries a query string
+
+  `Redirector` matched the whole URL including the query string, so a link that picked up
+  `utm_source`, `fbclid` or `gclid` on the way bypassed the redirect set for its path and landed on
+  the old page (or 404). A redirect whose source contains the query string still wins; when none
+  matches, the redirect set for the path applies and the request parameters are passed on to the
+  target (relative or absolute). Matches on the full URL keep dropping the parameters, as before.
+
+
+---
+
 ## [2.0.13](https://github.com/liquiddesign/pages/compare/v2.0.12...v2.0.13) (2026-10-05)
 
 ### Bug Fixes
