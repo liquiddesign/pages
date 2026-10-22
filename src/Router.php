@@ -29,6 +29,8 @@ class Router implements \Nette\Routing\Router
 	private array $inCache = [];
 
 	private Nette\Caching\Cache $cache;
+
+	private bool $prefetchOnce = false;
 	
 	public function __construct(
 		private readonly Pages $pages,
@@ -39,6 +41,18 @@ class Router implements \Nette\Routing\Router
 		private readonly bool $cacheEnabled = false,
 	) {
 		$this->cache = new Nette\Caching\Cache($storage);
+	}
+
+	/**
+	 * Prefetch kolekce stránek (`$outCache`) se v `constructUrl()` sestaví jen jednou za request.
+	 *
+	 * Bez přepínače se kolekce (`many()->where()->setIndex()` + filtr shopu) staví při **každém**
+	 * odkazu, i když ji `??=` použije jen při prvním — na stránce s ~200 odkazy to jsou jednotky ms.
+	 * Výsledek je v obou režimech stejný; výchozí `false` drží dosavadní chování.
+	 */
+	public function setPrefetchOnce(bool $prefetchOnce): void
+	{
+		$this->prefetchOnce = $prefetchOnce;
 	}
 	
 	/**
@@ -147,16 +161,18 @@ class Router implements \Nette\Routing\Router
 		$serializedParams = \http_build_query(\array_intersect_key($params, $pageType->getParameters()));
 		$cacheIndex = $pageType->getID() . $serializedParams . ($serializedParams ? '&' : '');
 		
-		if ($this->pageRepository instanceof Repository) {
-			$outCacheCollection = $this->pageRepository->many()
-				->where('type', $this->pages->getPrefetchTypes())
-				->setIndex('CONCAT(this.type,this.params)');
+		if (!$this->prefetchOnce || !isset($this->outCache)) {
+			if ($this->pageRepository instanceof Repository) {
+				$outCacheCollection = $this->pageRepository->many()
+					->where('type', $this->pages->getPrefetchTypes())
+					->setIndex('CONCAT(this.type,this.params)');
 
-			$this->shopsConfig->filterShopsInShopEntityCollection($outCacheCollection);
+				$this->shopsConfig->filterShopsInShopEntityCollection($outCacheCollection);
 
-			$this->outCache ??= $outCacheCollection->toArray();
-		} else {
-			$this->outCache = [];
+				$this->outCache ??= $outCacheCollection->toArray();
+			} else {
+				$this->outCache = [];
+			}
 		}
 		
 		if (!\array_key_exists($cacheIndex, $this->outCache)) {

@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.15](https://github.com/liquiddesign/pages/compare/v2.0.14...v2.0.15) (2026-10-22)
+
+### Performance Improvements
+
+* Build the prefetch page collection once per request (opt-in)
+
+  `Router::constructUrl()` built the prefetch collection (`many()->where()->setIndex()` plus the shop
+  filter) for every link, although `??=` used it only the first time — about 5 ms on a page with
+  a couple hundred links. `Router::setPrefetchOnce(true)` builds it once per request; the generated
+  URLs are the same. Disabled by default, so the behaviour does not change until a project opts in.
+
+
+---
+
 ## [2.0.14](https://github.com/liquiddesign/pages/compare/v2.0.13...v2.0.14) (2026-10-05)
 
 ### Bug Fixes
