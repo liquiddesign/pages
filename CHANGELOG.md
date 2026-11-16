@@ -4,6 +4,12 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.0.16](https://github.com/liquiddesign/pages/compare/v2.0.15...v2.0.16) (2026-11-16)
+
+### Compatibility
+
+* Allow `nette/caching` `^3.2 || ^4.0` — `Router` already uses `Cache::Tags` / `Cache::Expire` and only the `Storage` interface (no behaviour change)
+
 ## [2.0.15](https://github.com/liquiddesign/pages/compare/v2.0.14...v2.0.15) (2026-10-22)
 
 ### Performance Improvements
